@@ -1,4 +1,5 @@
 package model;
 
-public class Bookable {
+public interface Bookable {
+    boolean isAvailable();
 }

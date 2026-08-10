@@ -1,4 +1,5 @@
 package model;
 
-public class BookingValidator {
+public interface BookingValidator {
+    void validate(Booking booking);
 }
