@@ -1,3 +1,3 @@
-P01|Phòng thường 01|1|10|Phòng thường|Đang hoạt động
-P02|Phòng máy chiếu 01|2|20|Phòng có máy chiếu|Đang hoạt động
-P03|Phòng seminar 01|3|30|Phòng họp seminar|Đang hoạt động
+P01|Phòng thường 01|1|10|Normal|Đang hoạt động
+P02|Phòng máy chiếu 01|2|20|Projector|Đang hoạt động
+P03|Phòng seminar 01|3|30|Seminar|Đang hoạt động
