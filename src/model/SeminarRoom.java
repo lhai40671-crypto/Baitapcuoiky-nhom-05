@@ -25,3 +25,4 @@ public class SeminarRoom extends Room {
         return 50000;
     }
 }
+/ Update lan 3
