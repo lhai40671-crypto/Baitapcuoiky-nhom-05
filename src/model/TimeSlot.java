@@ -1,56 +1,60 @@
 package model;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.Duration;
+import java.time.LocalDateTime;
 
 public class TimeSlot {
-    private LocalDate date;
-    private LocalTime startTime;
-    private LocalTime endTime;
+
+    private LocalDateTime startTime;
+    private LocalDateTime endTime;
 
     public TimeSlot() {
     }
 
-    public TimeSlot(LocalDate date, LocalTime startTime, LocalTime endTime) {
-        this.date = date;
+    public TimeSlot(LocalDateTime startTime,
+                    LocalDateTime endTime) {
+
         this.startTime = startTime;
         this.endTime = endTime;
     }
 
-    public LocalDate getDate() {
-        return date;
-    }
-
-    public void setDate(LocalDate date) {
-        this.date = date;
-    }
-
-    public LocalTime getStartTime() {
+    public LocalDateTime getStartTime() {
         return startTime;
     }
 
-    public void setStartTime(LocalTime startTime) {
+    public void setStartTime(LocalDateTime startTime) {
         this.startTime = startTime;
     }
 
-    public LocalTime getEndTime() {
+    public LocalDateTime getEndTime() {
         return endTime;
     }
 
-    public void setEndTime(LocalTime endTime) {
+    public void setEndTime(LocalDateTime endTime) {
         this.endTime = endTime;
     }
 
-    // Kiểm tra thời gian có hợp lệ không
+    public double getHours() {
+
+        if (startTime == null || endTime == null) {
+            return 0;
+        }
+
+        long minutes = Duration.between(
+                startTime, endTime).toMinutes();
+
+        return minutes / 60.0;
+    }
+
     public boolean isValid() {
         return startTime != null
                 && endTime != null
                 && endTime.isAfter(startTime);
     }
 
-    // Kiểm tra hai khung giờ có bị trùng nhau không
-    public boolean isOverlapping(TimeSlot other) {
-        if (!this.date.equals(other.date)) {
+    public boolean overlaps(TimeSlot other) {
+
+        if (other == null) {
             return false;
         }
 
@@ -58,17 +62,9 @@ public class TimeSlot {
                 && endTime.isAfter(other.startTime);
     }
 
-    // Tính số giờ sử dụng
-    public long getHours() {
-        return java.time.Duration.between(startTime, endTime).toHours();
-    }
-
     @Override
     public String toString() {
-        return "TimeSlot{" +
-                "date=" + date +
-                ", startTime=" + startTime +
-                ", endTime=" + endTime +
-                '}';
+        return startTime + " -> " + endTime
+                + " (" + getHours() + " giờ)";
     }
 }

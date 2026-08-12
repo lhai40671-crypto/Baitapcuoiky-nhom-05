@@ -3,16 +3,25 @@ package model;
 public class NormalRoom extends Room {
 
     public NormalRoom() {
-        super();
     }
 
-    public NormalRoom(String roomId, String roomName, int floor,
-                      int capacity, String status) {
-        super(roomId, roomName, floor, capacity, status);
+    public NormalRoom(String roomId,
+                      String roomName,
+                      int floor,
+                      int capacity,
+                      String status) {
+
+        super(roomId, roomName,
+                floor, capacity, status);
     }
 
     @Override
-    public double calculateFee(int hours) {
+    public String getRoomType() {
+        return "NORMAL";
+    }
+
+    @Override
+    public double getPricePerHour() {
         return 0;
     }
 }

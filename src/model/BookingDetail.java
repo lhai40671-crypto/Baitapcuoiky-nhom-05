@@ -1,44 +1,37 @@
 package model;
 
 public class BookingDetail {
-    private Booking booking;
-    private int participantCount;
-    private double totalFee;
+
+    private int numberOfPeople;
+    private String purpose;
     private String note;
 
     public BookingDetail() {
     }
 
-    public BookingDetail(Booking booking, int participantCount,
-                         double totalFee, String note) {
-        this.booking = booking;
-        this.participantCount = participantCount;
-        this.totalFee = totalFee;
+    public BookingDetail(int numberOfPeople,
+                         String purpose,
+                         String note) {
+
+        this.numberOfPeople = numberOfPeople;
+        this.purpose = purpose;
         this.note = note;
     }
 
-    public Booking getBooking() {
-        return booking;
+    public int getNumberOfPeople() {
+        return numberOfPeople;
     }
 
-    public void setBooking(Booking booking) {
-        this.booking = booking;
+    public void setNumberOfPeople(int numberOfPeople) {
+        this.numberOfPeople = numberOfPeople;
     }
 
-    public int getParticipantCount() {
-        return participantCount;
+    public String getPurpose() {
+        return purpose;
     }
 
-    public void setParticipantCount(int participantCount) {
-        this.participantCount = participantCount;
-    }
-
-    public double getTotalFee() {
-        return totalFee;
-    }
-
-    public void setTotalFee(double totalFee) {
-        this.totalFee = totalFee;
+    public void setPurpose(String purpose) {
+        this.purpose = purpose;
     }
 
     public String getNote() {
@@ -51,11 +44,8 @@ public class BookingDetail {
 
     @Override
     public String toString() {
-        return "BookingDetail{" +
-                "booking=" + booking +
-                ", participantCount=" + participantCount +
-                ", totalFee=" + totalFee +
-                ", note='" + note + '\'' +
-                '}';
+        return "Số người: " + numberOfPeople
+                + " | Mục đích: " + purpose
+                + " | Ghi chú: " + note;
     }
 }

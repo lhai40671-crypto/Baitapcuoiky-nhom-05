@@ -1,17 +1,19 @@
 package model;
 
-public class User {
+public abstract class User {
+
     private String userId;
-    private String name;
+    private String fullName;
     private String phone;
     private String email;
 
     public User() {
     }
 
-    public User(String userId, String name, String phone, String email) {
+    public User(String userId, String fullName,
+                String phone, String email) {
         this.userId = userId;
-        this.name = name;
+        this.fullName = fullName;
         this.phone = phone;
         this.email = email;
     }
@@ -24,12 +26,12 @@ public class User {
         this.userId = userId;
     }
 
-    public String getName() {
-        return name;
+    public String getFullName() {
+        return fullName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
     }
 
     public String getPhone() {
@@ -46,5 +48,12 @@ public class User {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public void displayInfo() {
+        System.out.println("Mã: " + userId);
+        System.out.println("Họ tên: " + fullName);
+        System.out.println("SĐT: " + phone);
+        System.out.println("Email: " + email);
     }
 }

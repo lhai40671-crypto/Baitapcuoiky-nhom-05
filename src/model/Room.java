@@ -1,6 +1,7 @@
 package model;
 
 public abstract class Room {
+
     private String roomId;
     private String roomName;
     private int floor;
@@ -10,8 +11,12 @@ public abstract class Room {
     public Room() {
     }
 
-    public Room(String roomId, String roomName, int floor,
-                int capacity, String status) {
+    public Room(String roomId,
+                String roomName,
+                int floor,
+                int capacity,
+                String status) {
+
         this.roomId = roomId;
         this.roomName = roomName;
         this.floor = floor;
@@ -59,21 +64,21 @@ public abstract class Room {
         this.status = status;
     }
 
-    // Mỗi loại phòng sẽ có cách tính phí khác nhau
-    public abstract double calculateFee(int hours);
+    public abstract String getRoomType();
+
+    public abstract double getPricePerHour();
 
     public boolean isAvailable() {
-        return status.equalsIgnoreCase("Đang hoạt động");
+        return "Đang hoạt động".equals(status);
     }
 
     @Override
     public String toString() {
-        return "Room{" +
-                "roomId='" + roomId + '\'' +
-                ", roomName='" + roomName + '\'' +
-                ", floor=" + floor +
-                ", capacity=" + capacity +
-                ", status='" + status + '\'' +
-                '}';
+        return "Mã phòng: " + roomId
+                + " | Tên: " + roomName
+                + " | Tầng: " + floor
+                + " | Sức chứa: " + capacity
+                + " | Loại: " + getRoomType()
+                + " | Trạng thái: " + status;
     }
 }
