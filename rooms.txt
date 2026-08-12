@@ -1,0 +1,3 @@
+P101|Phòng học nhóm 101|1|10|NORMAL|Đang hoạt động
+P201|Phòng máy chiếu 201|2|20|PROJECTOR|Đang hoạt động
+P301|Phòng seminar 301|3|30|SEMINAR|Đang bảo trì
