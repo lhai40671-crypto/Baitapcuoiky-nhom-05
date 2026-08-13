@@ -16,3 +16,4 @@ public class SeminarRoom extends Room {
         return hours * 50000;
     }
 }
+//lan2

@@ -16,3 +16,4 @@ public class NormalRoom extends Room {
         return 0;
     }
 }
+//lan2
