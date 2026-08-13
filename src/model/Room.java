@@ -77,3 +77,4 @@ public abstract class Room {
                 '}';
     }
 }
+//lan2

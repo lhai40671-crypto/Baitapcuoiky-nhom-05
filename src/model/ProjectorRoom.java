@@ -16,3 +16,4 @@ public class ProjectorRoom extends Room {
         return hours * 20000;
     }
 }
+//lan2

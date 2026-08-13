@@ -72,3 +72,4 @@ public class TimeSlot {
                 '}';
     }
 }
+//lan2
