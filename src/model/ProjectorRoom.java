@@ -41,4 +41,4 @@ public class ProjectorRoom extends Room {
                 ", status='" + getStatus() + '\'' +
                 '}';
     }
-}
+}//

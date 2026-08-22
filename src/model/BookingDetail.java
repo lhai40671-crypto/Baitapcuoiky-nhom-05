@@ -66,4 +66,4 @@ public class BookingDetail {
                 ", note='" + note + '\'' +
                 '}';
     }
-}
+}//

@@ -41,4 +41,4 @@ public class NormalRoom extends Room {
                 ", status='" + getStatus() + '\'' +
                 '}';
     }
-}
+}//
