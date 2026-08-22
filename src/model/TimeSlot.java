@@ -1,56 +1,87 @@
 package model;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
 public class TimeSlot {
+
     private LocalDate date;
     private LocalTime startTime;
     private LocalTime endTime;
 
+    // Constructor mặc định
     public TimeSlot() {
     }
 
-    public TimeSlot(LocalDate date, LocalTime startTime, LocalTime endTime) {
+    // Constructor đầy đủ
+    public TimeSlot(LocalDate date,
+                    LocalTime startTime,
+                    LocalTime endTime) {
+
         this.date = date;
         this.startTime = startTime;
         this.endTime = endTime;
     }
 
+    // Getter
     public LocalDate getDate() {
         return date;
-    }
-
-    public void setDate(LocalDate date) {
-        this.date = date;
     }
 
     public LocalTime getStartTime() {
         return startTime;
     }
 
-    public void setStartTime(LocalTime startTime) {
-        this.startTime = startTime;
-    }
-
     public LocalTime getEndTime() {
         return endTime;
+    }
+
+    // Setter
+    public void setDate(LocalDate date) {
+        this.date = date;
+    }
+
+    public void setStartTime(LocalTime startTime) {
+        this.startTime = startTime;
     }
 
     public void setEndTime(LocalTime endTime) {
         this.endTime = endTime;
     }
 
-    // Kiểm tra thời gian có hợp lệ không
+    // Kiểm tra khung giờ có hợp lệ không
     public boolean isValid() {
-        return startTime != null
-                && endTime != null
-                && endTime.isAfter(startTime);
+
+        if (date == null) {
+            return false;
+        }
+
+        if (startTime == null || endTime == null) {
+            return false;
+        }
+
+        return endTime.isAfter(startTime);
     }
 
     // Kiểm tra hai khung giờ có bị trùng nhau không
     public boolean isOverlapping(TimeSlot other) {
-        if (!this.date.equals(other.date)) {
+
+        if (other == null) {
+            return false;
+        }
+
+        if (date == null || other.date == null) {
+            return false;
+        }
+
+        // Khác ngày thì không trùng
+        if (!date.equals(other.date)) {
+            return false;
+        }
+
+        if (startTime == null || endTime == null
+                || other.startTime == null || other.endTime == null) {
             return false;
         }
 
@@ -60,7 +91,12 @@ public class TimeSlot {
 
     // Tính số giờ sử dụng
     public long getHours() {
-        return java.time.Duration.between(startTime, endTime).toHours();
+
+        if (!isValid()) {
+            return 0;
+        }
+
+        return Duration.between(startTime, endTime).toHours();
     }
 
     @Override
@@ -71,5 +107,4 @@ public class TimeSlot {
                 ", endTime=" + endTime +
                 '}';
     }
-}
-//lan2
+}////
