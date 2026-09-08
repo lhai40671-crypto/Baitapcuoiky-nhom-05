@@ -1,0 +1,74 @@
+const API_URL = 'http://localhost:8080';
+
+// Hàm gọi khi trang tải xong
+document.addEventListener('DOMContentLoaded', () => {
+    loadRooms();
+    loadStudents();
+
+    // Lắng nghe sự kiện submit form đặt phòng
+    document.getElementById('bookingForm').addEventListener('submit', handleBooking);
+});
+
+// Lấy danh sách phòng từ Backend
+async function loadRooms() {
+    try {
+        const response = await fetch(`${API_URL}/rooms`);
+        const rooms = await response.json();
+        const roomList = document.getElementById('roomList');
+        roomList.innerHTML = rooms.map(r => `<li>🚪 <b>${r.roomId}</b> - Tầng ${r.floor} (Sức chứa: ${r.capacity} người)</li>`).join('');
+    } catch (error) {
+        console.error('Không thể lấy danh sách phòng:', error);
+    }
+}
+
+// Lấy danh sách sinh viên từ Backend
+async function loadStudents() {
+    try {
+        const response = await fetch(`${API_URL}/students`);
+        const students = await response.json();
+        const studentList = document.getElementById('studentList');
+        studentList.innerHTML = students.map(s => `<li>👤 <b>${s.studentId}</b> - ${s.name} (${s.department})</li>`).join('');
+    } catch (error) {
+        console.error('Không thể lấy danh sách sinh viên:', error);
+    }
+}
+
+// Xử lý gửi dữ liệu đặt phòng lên Backend
+async function handleBooking(e) {
+    e.preventDefault();
+    
+    const messageDiv = document.getElementById('message');
+    messageDiv.className = 'message';
+    messageDiv.style.display = 'none';
+
+    const bookingData = {
+        studentId: document.getElementById('studentId').value,
+        roomId: document.getElementById('roomId').value,
+        date: document.getElementById('date').value,
+        startTime: document.getElementById('startTime').value,
+        endTime: document.getElementById('endTime').value,
+        participantCount: parseInt(document.getElementById('participantCount').value)
+    };
+
+    try {
+        const response = await fetch(`${API_URL}/bookings`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(bookingData)
+        });
+
+        const result = await response.text();
+
+        if (response.ok) {
+            messageDiv.textContent = "🎉 Đặt phòng thành công! " + result;
+            messageDiv.classList.add('success');
+            document.getElementById('bookingForm').reset();
+        } else {
+            messageDiv.textContent = "❌ Lỗi: " + result;
+            messageDiv.classList.add('error');
+        }
+    } catch (error) {
+        messageDiv.textContent = "❌ Không thể kết nối tới Server!";
+        messageDiv.classList.add('error');
+    }
+}
