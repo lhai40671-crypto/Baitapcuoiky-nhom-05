@@ -1,17 +1,22 @@
+package main;
+
+import backend.BookingHttpServer;
 import exception.BookingException;
 import model.Booking;
 import model.Room;
 import model.Student;
-import model.TimeSlot;
 import repository.BookingRepository;
 import repository.RoomRepository;
 import repository.StudentRepository;
 import service.BookingService;
+import service.FeeService;
 import service.RoomService;
-import service.StudentService;
+import utils.CurrencyUtils;
 
-import java.nio.file.Path;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeParseException;
+import java.util.List;
 import java.util.Scanner;
 
 public class Main {
@@ -20,206 +25,155 @@ public class Main {
 
     public static void main(String[] args) {
 
-        StudentRepository studentRepository = new StudentRepository(Path.of("data/students.txt"));
-
-        RoomRepository roomRepository = new RoomRepository(Path.of("data/rooms.txt"));
-
-        BookingRepository bookingRepository = new BookingRepository(Path.of("data/bookings.txt"));
-
-        StudentService studentService = new StudentService(studentRepository);
+        StudentRepository studentRepository = new StudentRepository();
+        RoomRepository roomRepository = new RoomRepository();
+        BookingRepository bookingRepository =
+                new BookingRepository(studentRepository, roomRepository);
 
         RoomService roomService = new RoomService(roomRepository);
+        BookingService bookingService =
+                new BookingService(studentRepository, roomRepository, bookingRepository);
+        FeeService feeService = new FeeService();
 
-        BookingService bookingService = new BookingService(studentRepository, roomRepository,bookingRepository);
+        startHttpServer(bookingService, roomService, studentRepository);
 
         while (true) {
 
             showMenu();
+            String choice = scanner.nextLine().trim();
 
-            String choice = scanner.nextLine();
-
-            try {
-
-                switch (choice) {
-
-                    case "1":
-                        showStudents(studentService);
-                        break;
-
-                    case "2":
-                        showRooms(roomService);
-                        break;
-
-                    case "3":
-                        bookRoom(bookingService);
-                        break;
-
-                    case "4":
-                        showMyBookings(bookingService);
-                        break;
-
-                    case "5":
-                        cancelBooking(bookingService);
-                        break;
-
-                    case "0":
-                        System.out.println("Đã thoát chương trình.");
-                        return;
-
-                    default:
-                        System.out.println("❌ Lựa chọn không hợp lệ.");
+            switch (choice) {
+                case "1" -> showStudents(studentRepository);
+                case "2" -> showRooms(roomService);
+                case "3" -> bookRoom(bookingService);
+                case "4" -> showMyBookings(bookingService, feeService);
+                case "5" -> cancelBooking(bookingService);
+                case "0" -> {
+                    System.out.println("Tam biet!");
+                    return;
                 }
-
-            } catch (BookingException e) {
-
-                System.out.println("❌ Lỗi nghiệp vụ: "
-                        + e.getMessage());
-
-            } catch (IllegalArgumentException e) {
-
-                System.out.println("❌ Dữ liệu không hợp lệ: "
-                        + e.getMessage());
-
-            } catch (Exception e) {
-
-                System.out.println("❌ Có lỗi xảy ra: "
-                        + e.getMessage());
+                default -> System.out.println("Lua chon khong hop le, thu lai.");
             }
         }
     }
 
+    // Khởi động HTTP server song song với console, không làm gián đoạn menu
+    // nếu khởi động thất bại (ví dụ port 8080 đang bị chiếm).
+    private static void startHttpServer(BookingService bookingService,
+                                        RoomService roomService,
+                                        StudentRepository studentRepository) {
+        try {
+            BookingHttpServer httpServer =
+                    new BookingHttpServer(bookingService, roomService, studentRepository);
+            httpServer.start(8080);
+        } catch (Exception e) {
+            System.out.println("Khong the khoi dong HTTP server: " + e.getMessage());
+        }
+    }
 
     private static void showMenu() {
+        System.out.println("""
 
-        System.out.println();
-        System.out.println("╔══════════════════════════════════════╗");
-        System.out.println("║     QUẢN LÝ ĐẶT PHÒNG HỌC NHÓM       ║");
-        System.out.println("╠══════════════════════════════════════╣");
-        System.out.println("║ 1. Xem danh sách sinh viên           ║");
-        System.out.println("║ 2. Xem danh sách phòng                ║");
-        System.out.println("║ 3. Đặt phòng                          ║");
-        System.out.println("║ 4. Xem lịch đặt phòng                 ║");
-        System.out.println("║ 5. Hủy lịch đặt                       ║");
-        System.out.println("║ 0. Thoát                              ║");
-        System.out.println("╚══════════════════════════════════════╝");
-        System.out.print(" Chọn chức năng: ");
+                ===== HE THONG DAT PHONG SEMINAR =====
+                1. Danh sach sinh vien
+                2. Danh sach phong
+                3. Dat phong
+                4. Xem lich dat phong cua toi
+                5. Huy dat phong
+                0. Thoat
+                Chon: """);
     }
 
+    private static void showStudents(StudentRepository studentRepository) {
 
-    private static void showStudents(StudentService service) {
+        List<Student> students = studentRepository.getAll();
 
-        System.out.println();
-        System.out.println("===== DANH SÁCH SINH VIÊN =====");
-
-        for (Student student : service.getAllStudents()) {
-            System.out.println(student);
-        }
-    }
-
-
-    private static void showRooms(RoomService service) {
-
-        System.out.println();
-        System.out.println("===== DANH SÁCH PHÒNG =====");
-
-        for (Room room : service.getAllRooms()) {
-            System.out.println(room);
-        }
-    }
-
-
-    private static void bookRoom(BookingService service) {
-
-        System.out.println();
-        System.out.println("===== ĐẶT PHÒNG =====");
-
-        System.out.print("Mã sinh viên: ");
-        String studentId = scanner.nextLine();
-
-        System.out.print("Mã phòng: ");
-        String roomId = scanner.nextLine();
-
-        System.out.print("Ngày đặt (YYYY-MM-DD): ");
-        String date = scanner.nextLine();
-
-        System.out.print("Giờ bắt đầu: ");
-        int startHour = Integer.parseInt(scanner.nextLine());
-
-        System.out.print("Giờ kết thúc: ");
-        int endHour = Integer.parseInt(scanner.nextLine());
-
-        System.out.print("Số người: ");
-        int people = Integer.parseInt(scanner.nextLine());
-
-        LocalDateTime start =
-                LocalDateTime.of(
-                        java.time.LocalDate.parse(date),
-                        java.time.LocalTime.of(startHour, 0)
-                );
-
-        LocalDateTime end =
-                LocalDateTime.of(
-                        java.time.LocalDate.parse(date),
-                        java.time.LocalTime.of(endHour, 0)
-                );
-
-        TimeSlot timeSlot =
-                new TimeSlot(start, end);
-
-        Booking booking =
-                service.book(
-                        studentId,
-                        roomId,
-                        timeSlot,
-                        people
-                );
-
-        System.out.println();
-        System.out.println("╔══════════════════════════════════════╗");
-        System.out.println("║          ĐẶT PHÒNG THÀNH CÔNG        ║");
-        System.out.println("╚══════════════════════════════════════╝");
-        System.out.println(booking);
-    }
-
-
-    private static void showMyBookings(BookingService service) {
-
-        System.out.println();
-        System.out.println("===== LỊCH ĐẶT PHÒNG =====");
-
-        System.out.print("Mã sinh viên: ");
-        String studentId = scanner.nextLine();
-
-        var bookings =
-                service.getMyBookings(studentId);
-
-        if (bookings.isEmpty()) {
-
-            System.out.println("Chưa có lịch đặt phòng.");
-
+        if (students.isEmpty()) {
+            System.out.println("Chua co sinh vien nao trong he thong.");
             return;
         }
 
-        bookings.forEach(System.out::println);
+        students.forEach(System.out::println);
     }
 
+    private static void showRooms(RoomService roomService) {
 
-    private static void cancelBooking(BookingService service) {
+        List<Room> rooms = roomService.getAllRooms();
 
-        System.out.println();
-        System.out.println("===== HỦY LỊCH ĐẶT =====");
+        if (rooms.isEmpty()) {
+            System.out.println("Chua co phong nao trong he thong.");
+            return;
+        }
 
-        System.out.print("Mã đặt phòng: ");
-        String bookingId = scanner.nextLine();
+        rooms.forEach(System.out::println);
+    }
 
-        System.out.print("Mã sinh viên: ");
-        String studentId = scanner.nextLine();
+    private static void bookRoom(BookingService bookingService) {
 
-        service.cancel(
-                bookingId,
-                studentId
-        );
+        try {
+            System.out.print("Nhap ma sinh vien: ");
+            String studentId = scanner.nextLine().trim();
 
-        System.out.println(" Hủy lịch thành công.");
+            System.out.print("Nhap ma phong: ");
+            String roomId = scanner.nextLine().trim();
+
+            System.out.print("Nhap ngay (yyyy-MM-dd): ");
+            LocalDate date = LocalDate.parse(scanner.nextLine().trim());
+
+            System.out.print("Nhap gio bat dau (HH:mm): ");
+            LocalTime startTime = LocalTime.parse(scanner.nextLine().trim());
+
+            System.out.print("Nhap gio ket thuc (HH:mm): ");
+            LocalTime endTime = LocalTime.parse(scanner.nextLine().trim());
+
+            System.out.print("Nhap so nguoi tham gia: ");
+            int participantCount = Integer.parseInt(scanner.nextLine().trim());
+
+            Booking booking = bookingService.createBooking(
+                    studentId, roomId, date, startTime, endTime, participantCount);
+
+            System.out.println("Chi tiet: " + booking);
+
+        } catch (DateTimeParseException e) {
+            System.out.println("Dinh dang ngay/gio khong hop le!");
+        } catch (NumberFormatException e) {
+            System.out.println("So nguoi tham gia phai la so!");
+        } catch (BookingException e) {
+            System.out.println("Loi: " + e.getMessage());
+        }
+    }
+
+    private static void showMyBookings(BookingService bookingService, FeeService feeService) {
+
+        System.out.print("Nhap ma sinh vien: ");
+        String studentId = scanner.nextLine().trim();
+
+        List<Booking> bookings = bookingService.getBookingsByStudent(studentId);
+
+        if (bookings.isEmpty()) {
+            System.out.println("Ban chua co lich dat phong nao.");
+            return;
+        }
+
+        for (Booking booking : bookings) {
+            double fee = feeService.calculateFee(booking);
+            System.out.println(booking + " | Phi: " + CurrencyUtils.formatVND(fee));
+        }
+    }
+
+    private static void cancelBooking(BookingService bookingService) {
+
+        try {
+            System.out.print("Nhap ma sinh vien: ");
+            String studentId = scanner.nextLine().trim();
+
+            System.out.print("Nhap ma dat phong can huy: ");
+            String bookingId = scanner.nextLine().trim();
+
+            bookingService.cancelBooking(bookingId, studentId);
+
+        } catch (BookingException e) {
+            System.out.println("Loi: " + e.getMessage());
+        }
     }
 }
