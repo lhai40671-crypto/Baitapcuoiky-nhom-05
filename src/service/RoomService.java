@@ -1,59 +1,38 @@
 package service;
 
+import exception.BookingException;
 import model.Room;
+import repository.RoomRepository;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class RoomService {
 
-    private final List<Room> rooms;
+    private final RoomRepository roomRepository;
 
-    public RoomService(List<Room> rooms) {
-        this.rooms = rooms;
+    public RoomService(RoomRepository roomRepository) {
+        this.roomRepository = roomRepository;
     }
 
     public List<Room> getAllRooms() {
-        return new ArrayList<>(rooms);
+        return roomRepository.getAll();
     }
 
     public Room findById(String roomId) {
-
-        for (Room room : rooms) {
-
-            if (room.getRoomId()
-                    .equalsIgnoreCase(roomId)) {
-
-                return room;
-            }
-        }
-
-        return null;
+        return roomRepository.findById(roomId);
     }
 
     public List<Room> findByType(String type) {
-
-        List<Room> result = new ArrayList<>();
-
-        for (Room room : rooms) {
-
-            if (room.getRoomType()
-                    .equalsIgnoreCase(type)) {
-
-                result.add(room);
-            }
-        }
-
-        return result;
+        return roomRepository.findByType(type);
     }
 
     public List<Room> getActiveRooms() {
 
         List<Room> result = new ArrayList<>();
 
-        for (Room room : rooms) {
-
-            if (room.isActive()) {
+        for (Room room : roomRepository.getAll()) {
+            if (room.isAvailable()) {
                 result.add(room);
             }
         }
@@ -64,30 +43,22 @@ public class RoomService {
     public void addRoom(Room room) {
 
         if (room == null) {
-            throw new IllegalArgumentException(
-                    "Phong khong duoc null!"
-            );
+            throw new BookingException("Phong khong duoc null!");
         }
 
         if (findById(room.getRoomId()) != null) {
-            throw new IllegalArgumentException(
-                    "Ma phong da ton tai!"
-            );
+            throw new BookingException("Ma phong da ton tai!");
         }
 
-        rooms.add(room);
+        roomRepository.save(room);
     }
 
     public void removeRoom(String roomId) {
 
-        Room room = findById(roomId);
+        boolean removed = roomRepository.remove(roomId);
 
-        if (room == null) {
-            throw new IllegalArgumentException(
-                    "Khong tim thay phong!"
-            );
+        if (!removed) {
+            throw new BookingException("Khong tim thay phong!");
         }
-
-        rooms.remove(room);
     }
 }

@@ -1,202 +1,114 @@
 package service;
 
+import exception.BookingException;
 import model.Booking;
 import model.Room;
 import model.Student;
+import model.TimeSlot;
+import repository.BookingRepository;
+import repository.RoomRepository;
+import repository.StudentRepository;
+import utils.IdGenerator;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
-import java.util.UUID;
 
 public class BookingService {
 
-    private final List<Booking> bookings;
-    private final List<Student> students;
-    private final List<Room> rooms;
-
+    private final StudentRepository studentRepository;
+    private final RoomRepository roomRepository;
+    private final BookingRepository bookingRepository;
     private final BookingValidator validator;
 
-    public BookingService(
-            List<Booking> bookings,
-            List<Student> students,
-            List<Room> rooms) {
+    public BookingService(StudentRepository studentRepository,
+                          RoomRepository roomRepository,
+                          BookingRepository bookingRepository) {
 
-        this.bookings = bookings;
-        this.students = students;
-        this.rooms = rooms;
-
+        this.studentRepository = studentRepository;
+        this.roomRepository = roomRepository;
+        this.bookingRepository = bookingRepository;
         this.validator = new BookingValidator();
     }
 
-    public Booking createBooking(
-            String studentId,
-            String roomId,
-            LocalDateTime startTime,
-            LocalDateTime endTime,
-            int numberOfPeople) {
+    // Đặt phòng mới
+    public Booking createBooking(String studentId,
+                                 String roomId,
+                                 LocalDate date,
+                                 LocalTime startTime,
+                                 LocalTime endTime,
+                                 int participantCount) {
 
-        Student student = findStudent(studentId);
-        Room room = findRoom(roomId);
+        Student student = studentRepository.findById(studentId);
+        Room room = roomRepository.findById(roomId);
+        TimeSlot timeSlot = new TimeSlot(date, startTime, endTime);
 
         validator.validateStudent(student);
         validator.validateRoom(room);
-        validator.validateTime(startTime, endTime);
-        validator.validateCapacity(room, numberOfPeople);
+        validator.validateTimeSlot(timeSlot);
+        validator.validateCapacity(room, participantCount);
 
-        validator.validateOverlap(
-                room,
-                startTime,
-                endTime,
-                bookings
-        );
+        List<Booking> roomBookings = bookingRepository.findByRoomId(roomId);
+        validator.validateOverlap(room, timeSlot, roomBookings);
 
-        validator.validateDailyLimit(
-                student,
-                startTime,
-                endTime,
-                bookings
-        );
+        List<Booking> studentBookings = bookingRepository.findByStudentId(studentId);
+        validator.validateDailyLimit(student, timeSlot, studentBookings);
 
-        String bookingId =
-                "B" + UUID.randomUUID()
-                        .toString()
-                        .substring(0, 8)
-                        .toUpperCase();
+        String bookingId = IdGenerator.generateBookingId();
 
         Booking booking = new Booking(
                 bookingId,
                 student,
                 room,
-                startTime,
-                endTime,
-                numberOfPeople,
+                timeSlot,
+                participantCount,
                 "Đã đặt"
         );
 
-        bookings.add(booking);
+        bookingRepository.save(booking);
 
-        System.out.println(
-                "Dat phong thanh cong! Ma dat phong: "
-                        + bookingId
-        );
+        System.out.println("Dat phong thanh cong! Ma dat phong: " + bookingId);
 
         return booking;
     }
 
-    public void cancelBooking(
-            String bookingId,
-            String studentId) {
+    // Hủy booking
+    public void cancelBooking(String bookingId, String studentId) {
 
-        Booking booking = findBooking(bookingId);
+        Booking booking = bookingRepository.findById(bookingId);
 
         if (booking == null) {
-            throw new IllegalArgumentException(
-                    "Ma dat phong khong ton tai!"
-            );
+            throw new BookingException("Ma dat phong khong ton tai!");
         }
 
-        if (booking.getStatus().equals("Đã hủy")) {
-            throw new IllegalArgumentException(
-                    "Lich dat nay da bi huy truoc do!"
-            );
+        if ("Đã hủy".equals(booking.getStatus())) {
+            throw new BookingException("Lich dat nay da bi huy truoc do!");
         }
 
-        if (!booking.getStudent()
-                .getStudentId()
-                .equals(studentId)) {
-
-            throw new IllegalArgumentException(
-                    "Ban khong phai nguoi tao lich dat nay!"
-            );
+        if (!booking.getStudent().getUserId().equals(studentId)) {
+            throw new BookingException("Ban khong phai nguoi tao lich dat nay!");
         }
 
-        booking.setStatus("Đã hủy");
+        boolean canceled = bookingRepository.cancel(bookingId);
 
-        System.out.println(
-                "Huy lich dat phong thanh cong!"
-        );
+        if (canceled) {
+            System.out.println("Huy lich dat phong thanh cong!");
+        }
     }
 
-    public List<Booking> getBookingsByStudent(
-            String studentId) {
-
-        List<Booking> result = new ArrayList<>();
-
-        for (Booking booking : bookings) {
-
-            if (booking.getStudent()
-                    .getStudentId()
-                    .equals(studentId)) {
-
-                result.add(booking);
-            }
-        }
-
-        return result;
+    public List<Booking> getBookingsByStudent(String studentId) {
+        return bookingRepository.findByStudentId(studentId);
     }
 
-    public List<Booking> getBookingsByRoom(
-            String roomId) {
-
-        List<Booking> result = new ArrayList<>();
-
-        for (Booking booking : bookings) {
-
-            if (booking.getRoom()
-                    .getRoomId()
-                    .equals(roomId)) {
-
-                result.add(booking);
-            }
-        }
-
-        return result;
+    public List<Booking> getBookingsByRoom(String roomId) {
+        return bookingRepository.findByRoomId(roomId);
     }
 
     public Booking findBooking(String bookingId) {
-
-        for (Booking booking : bookings) {
-
-            if (booking.getBookingId()
-                    .equals(bookingId)) {
-
-                return booking;
-            }
-        }
-
-        return null;
-    }
-
-    private Student findStudent(String studentId) {
-
-        for (Student student : students) {
-
-            if (student.getStudentId()
-                    .equals(studentId)) {
-
-                return student;
-            }
-        }
-
-        return null;
-    }
-
-    private Room findRoom(String roomId) {
-
-        for (Room room : rooms) {
-
-            if (room.getRoomId()
-                    .equals(roomId)) {
-
-                return room;
-            }
-        }
-
-        return null;
+        return bookingRepository.findById(bookingId);
     }
 
     public List<Booking> getAllBookings() {
-        return bookings;
+        return bookingRepository.getAll();
     }
 }
