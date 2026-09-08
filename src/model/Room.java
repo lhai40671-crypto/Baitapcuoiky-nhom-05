@@ -8,15 +8,11 @@ public abstract class Room {
     private int capacity;
     private String status;
 
-    // Constructor mặc định
     public Room() {
     }
 
-    // Constructor đầy đủ
-    public Room(String roomId,
-                String roomName,
-                int floor,
-                int capacity,
+    public Room(String roomId, String roomName,
+                int floor, int capacity,
                 String status) {
 
         this.roomId = roomId;
@@ -26,65 +22,45 @@ public abstract class Room {
         this.status = status;
     }
 
-    // Getter
     public String getRoomId() {
         return roomId;
+    }
+
+    public void setRoomId(String roomId) {
+        this.roomId = roomId;
     }
 
     public String getRoomName() {
         return roomName;
     }
 
-    public int getFloor() {
-        return floor;
-    }
-
-    public int getCapacity() {
-        return capacity;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    // Setter
-    public void setRoomId(String roomId) {
-        this.roomId = roomId;
-    }
-
     public void setRoomName(String roomName) {
         this.roomName = roomName;
+    }
+
+    public int getFloor() {
+        return floor;
     }
 
     public void setFloor(int floor) {
         this.floor = floor;
     }
 
+    public int getCapacity() {
+        return capacity;
+    }
+
     public void setCapacity(int capacity) {
         this.capacity = capacity;
+    }
+
+    public String getStatus() {
+        return status;
     }
 
     public void setStatus(String status) {
         this.status = status;
     }
 
-    // Kiểm tra phòng có đang hoạt động hay không
-    public boolean isAvailable() {
-        return status != null
-                && status.equalsIgnoreCase("Đang hoạt động");
-    }
-
-    // Mỗi loại phòng có cách tính phí khác nhau
-    public abstract double calculateFee(int hours);
-
-    @Override
-    public String toString() {
-        return "Room{" +
-                "roomId='" + roomId + '\'' +
-                ", roomName='" + roomName + '\'' +
-                ", floor=" + floor +
-                ", capacity=" + capacity +
-                ", status='" + status + '\'' +
-                '}';
-    }
-}//
+    public abstract String getRoomType();
+}

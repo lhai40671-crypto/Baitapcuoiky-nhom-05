@@ -3,109 +3,97 @@ package model;
 public class Booking {
 
     private String bookingId;
-    private Student student;
-    private Room room;
-    private TimeSlot timeSlot;
-    private int participantCount;
+    private String studentId;
+    private String roomId;
+    private String date;
+    private String startTime;
+    private String endTime;
+    private int numberOfPeople;
     private String status;
 
-    // Constructor mặc định
     public Booking() {
     }
 
-    // Constructor đầy đủ
     public Booking(String bookingId,
-                   Student student,
-                   Room room,
-                   TimeSlot timeSlot,
-                   int participantCount,
+                   String studentId,
+                   String roomId,
+                   String date,
+                   String startTime,
+                   String endTime,
+                   int numberOfPeople,
                    String status) {
 
         this.bookingId = bookingId;
-        this.student = student;
-        this.room = room;
-        this.timeSlot = timeSlot;
-        this.participantCount = participantCount;
+        this.studentId = studentId;
+        this.roomId = roomId;
+        this.date = date;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.numberOfPeople = numberOfPeople;
         this.status = status;
     }
 
-    // Getter
     public String getBookingId() {
         return bookingId;
     }
 
-    public Student getStudent() {
-        return student;
+    public void setBookingId(String bookingId) {
+        this.bookingId = bookingId;
     }
 
-    public Room getRoom() {
-        return room;
+    public String getStudentId() {
+        return studentId;
     }
 
-    public TimeSlot getTimeSlot() {
-        return timeSlot;
+    public void setStudentId(String studentId) {
+        this.studentId = studentId;
     }
 
-    public int getParticipantCount() {
-        return participantCount;
+    public String getRoomId() {
+        return roomId;
+    }
+
+    public void setRoomId(String roomId) {
+        this.roomId = roomId;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
+    }
+
+    public String getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(String startTime) {
+        this.startTime = startTime;
+    }
+
+    public String getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(String endTime) {
+        this.endTime = endTime;
+    }
+
+    public int getNumberOfPeople() {
+        return numberOfPeople;
+    }
+
+    public void setNumberOfPeople(int numberOfPeople) {
+        this.numberOfPeople = numberOfPeople;
     }
 
     public String getStatus() {
         return status;
     }
 
-    // Setter
-    public void setBookingId(String bookingId) {
-        this.bookingId = bookingId;
-    }
-
-    public void setStudent(Student student) {
-        this.student = student;
-    }
-
-    public void setRoom(Room room) {
-        this.room = room;
-    }
-
-    public void setTimeSlot(TimeSlot timeSlot) {
-        this.timeSlot = timeSlot;
-    }
-
-    public void setParticipantCount(int participantCount) {
-        this.participantCount = participantCount;
-    }
-
     public void setStatus(String status) {
         this.status = status;
     }
-
-    // Tính phí của lịch đặt
-    public double calculateFee() {
-
-        if (room == null || timeSlot == null) {
-            return 0;
-        }
-
-        int hours = (int) timeSlot.getHours();
-
-        if (hours <= 0) {
-            return 0;
-        }
-
-        return room.calculateFee(hours);
-    }
-
-    @Override
-    public String toString() {
-        return "Booking{" +
-                "bookingId='" + bookingId + '\'' +
-                ", student=" +
-                (student != null ? student.getName() : "null") +
-                ", room=" +
-                (room != null ? room.getRoomName() : "null") +
-                ", timeSlot=" + timeSlot +
-                ", participantCount=" + participantCount +
-                ", status='" + status + '\'' +
-                '}';
-    }
-}//
+}

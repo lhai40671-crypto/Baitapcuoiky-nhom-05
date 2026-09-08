@@ -1,0 +1,4 @@
+P101|Phong hoc nhom 101|1|10|normal|Dang hoat dong
+P102|Phong hoc nhom 102|1|15|projector|Dang hoat dong
+P201|Phong seminar 201|2|30|seminar|Dang hoat dong
+P202|Phong hoc nhom 202|2|10|normal|Dang bao tri

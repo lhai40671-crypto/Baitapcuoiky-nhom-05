@@ -1,32 +1,62 @@
 package service;
 
-import model.Booking;
-import model.ProjectorRoom;
-import model.SeminarRoom;
+import fee.FreeRoomFeePolicy;
+import fee.ProjectorRoomFeePolicy;
+import fee.RoomFeePolicy;
+import fee.SeminarRoomFeePolicy;
 import model.Room;
 
 public class FeeService {
 
-    public double calculateFee(Booking booking) {
+    public double calculateFee(
+            Room room,
+            double hours) {
 
-        if (booking == null) {
+        if (room == null) {
+
             throw new IllegalArgumentException(
-                    "Booking khong duoc null!"
+                    "Phong khong ton tai!"
             );
         }
 
-        Room room = booking.getRoom();
+        if (hours <= 0) {
 
-        if (room instanceof ProjectorRoom) {
-            RoomFeePolicy policy = new ProjectorRoomFeePolicy();
-            return policy.calculateFee(booking);
+            throw new IllegalArgumentException(
+                    "So gio phai lon hon 0!"
+            );
         }
 
-        if (room instanceof SeminarRoom) {
-            RoomFeePolicy policy = new SeminarRoomFeePolicy();
-            return policy.calculateFee(booking);
-        }
+        RoomFeePolicy policy =
+                getPolicy(room);
 
-        return 0;
+        return policy.calculateFee(hours);
+    }
+
+    private RoomFeePolicy getPolicy(
+            Room room) {
+
+        switch (
+                room.getRoomType()
+                        .toLowerCase()
+        ) {
+
+            case "normal":
+
+                return new FreeRoomFeePolicy();
+
+            case "projector":
+
+                return new ProjectorRoomFeePolicy();
+
+            case "seminar":
+
+                return new SeminarRoomFeePolicy();
+
+            default:
+
+                throw new IllegalArgumentException(
+                        "Loai phong khong duoc ho tro!"
+                );
+        }
     }
 }

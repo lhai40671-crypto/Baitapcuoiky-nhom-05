@@ -1,44 +1,50 @@
 package service;
 
 import model.Room;
+import repository.RoomRepository;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class RoomService {
 
-    private final List<Room> rooms;
+    private RoomRepository roomRepository;
 
-    public RoomService(List<Room> rooms) {
-        this.rooms = rooms;
+    public RoomService() {
+        roomRepository = new RoomRepository();
     }
 
+    // Lấy tất cả phòng
     public List<Room> getAllRooms() {
-        return new ArrayList<>(rooms);
+
+        return roomRepository.getAll();
     }
 
-    public Room findById(String roomId) {
+    // Tìm phòng theo mã
+    public Room findRoomById(String roomId) {
 
-        for (Room room : rooms) {
-
-            if (room.getRoomId()
-                    .equalsIgnoreCase(roomId)) {
-
-                return room;
-            }
-        }
-
-        return null;
+        return roomRepository.findById(roomId);
     }
 
-    public List<Room> findByType(String type) {
+    // Tìm phòng theo loại
+    public List<Room> findRoomByType(
+            String roomType) {
+
+        return roomRepository.findByType(roomType);
+    }
+
+    // Lấy danh sách phòng đang hoạt động
+    public List<Room> getAvailableRooms() {
 
         List<Room> result = new ArrayList<>();
 
+        List<Room> rooms =
+                roomRepository.getAll();
+
         for (Room room : rooms) {
 
-            if (room.getRoomType()
-                    .equalsIgnoreCase(type)) {
+            if (room.getStatus()
+                    .equalsIgnoreCase("Dang hoat dong")) {
 
                 result.add(room);
             }
@@ -47,47 +53,17 @@ public class RoomService {
         return result;
     }
 
-    public List<Room> getActiveRooms() {
+    // Kiểm tra phòng có thể đặt không
+    public boolean isRoomAvailable(String roomId) {
 
-        List<Room> result = new ArrayList<>();
-
-        for (Room room : rooms) {
-
-            if (room.isActive()) {
-                result.add(room);
-            }
-        }
-
-        return result;
-    }
-
-    public void addRoom(Room room) {
+        Room room =
+                roomRepository.findById(roomId);
 
         if (room == null) {
-            throw new IllegalArgumentException(
-                    "Phong khong duoc null!"
-            );
+            return false;
         }
 
-        if (findById(room.getRoomId()) != null) {
-            throw new IllegalArgumentException(
-                    "Ma phong da ton tai!"
-            );
-        }
-
-        rooms.add(room);
-    }
-
-    public void removeRoom(String roomId) {
-
-        Room room = findById(roomId);
-
-        if (room == null) {
-            throw new IllegalArgumentException(
-                    "Khong tim thay phong!"
-            );
-        }
-
-        rooms.remove(room);
+        return room.getStatus()
+                .equalsIgnoreCase("Dang hoat dong");
     }
 }

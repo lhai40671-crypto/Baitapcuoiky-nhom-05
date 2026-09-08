@@ -1,0 +1,4 @@
+SV001|Nguyen Van An|0912345678|CNTT01|an@gmail.com
+SV002|Tran Van Binh|0987654321|CNTT02|binh@gmail.com
+SV003|Le Thi Hoa|0901234567|CNTT03|hoa@gmail.com
+SV004|Pham Van Nam|0909999999|CNTT04|nam@gmail.com

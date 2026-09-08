@@ -1,43 +1,64 @@
 package model;
 
-public class Student extends User {
+public class Student {
 
+    private String studentId;
+    private String fullName;
+    private String phone;
     private String className;
+    private String email;
 
-    // Constructor mặc định
     public Student() {
-        super();
     }
 
-    // Constructor đầy đủ
-    public Student(String studentId,
-                   String name,
-                   String phone,
-                   String className,
+    public Student(String studentId, String fullName,
+                   String phone, String className,
                    String email) {
 
-        super(studentId, name, phone, email);
+        this.studentId = studentId;
+        this.fullName = fullName;
+        this.phone = phone;
         this.className = className;
+        this.email = email;
     }
 
-    // Getter
+    public String getStudentId() {
+        return studentId;
+    }
+
+    public void setStudentId(String studentId) {
+        this.studentId = studentId;
+    }
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
     public String getClassName() {
         return className;
     }
 
-    // Setter
     public void setClassName(String className) {
         this.className = className;
     }
 
-    @Override
-    public String toString() {
-        return "Student{" +
-                "studentId='" + getUserId() + '\'' +
-                ", name='" + getName() + '\'' +
-                ", phone='" + getPhone() + '\'' +
-                ", className='" + className + '\'' +
-                ", email='" + getEmail() + '\'' +
-                '}';
+    public String getEmail() {
+        return email;
     }
-}//
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+}

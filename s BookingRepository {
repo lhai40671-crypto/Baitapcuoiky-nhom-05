@@ -1,0 +1,516 @@
+[1mdiff --git a/src/repository/BookingRepository.java b/src/repository/BookingRepository.java[m
+[1mindex bb0d595..5595e95 100644[m
+[1m--- a/src/repository/BookingRepository.java[m
+[1m+++ b/src/repository/BookingRepository.java[m
+[36m@@ -1,4 +1,207 @@[m
+ package repository;[m
+ [m
+[32m+[m[32mimport model.Booking;[m
+[32m+[m[32mimport model.Room;[m
+[32m+[m[32mimport model.Student;[m
+[32m+[m[32mimport model.TimeSlot;[m
+[32m+[m
+[32m+[m[32mimport java.io.*;[m
+[32m+[m[32mimport java.time.LocalDate;[m
+[32m+[m[32mimport java.time.LocalTime;[m
+[32m+[m[32mimport java.util.ArrayList;[m
+[32m+[m[32mimport java.util.List;[m
+[32m+[m
+ public class BookingRepository {[m
+[31m-}[m
+[32m+[m
+[32m+[m[32m    private static final String FILE_NAME = "data/bookings.txt";[m
+[32m+[m
+[32m+[m[32m    private final StudentRepository studentRepository;[m
+[32m+[m[32m    private final RoomRepository roomRepository;[m
+[32m+[m
+[32m+[m[32m    public BookingRepository(StudentRepository studentRepository,[m
+[32m+[m[32m                             RoomRepository roomRepository) {[m
+[32m+[m[32m        this.studentRepository = studentRepository;[m
+[32m+[m[32m        this.roomRepository = roomRepository;[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    // Đọc toàn bộ danh sách đặt phòng từ file[m
+[32m+[m[32m    public List<Booking> getAll() {[m
+[32m+[m
+[32m+[m[32m        List<Booking> bookings = new ArrayList<>();[m
+[32m+[m
+[32m+[m[32m        File file = new File(FILE_NAME);[m
+[32m+[m
+[32m+[m[32m        if (!file.exists()) {[m
+[32m+[m[32m            return bookings;[m
+[32m+[m[32m        }[m
+[32m+[m
+[32m+[m[32m        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {[m
+[32m+[m
+[32m+[m[32m            String line;[m
+[32m+[m
+[32m+[m[32m            while ((line = reader.readLine()) != null) {[m
+[32m+[m
+[32m+[m[32m                if (line.trim().isEmpty()) {[m
+[32m+[m[32m                    continue;[m
+[32m+[m[32m                }[m
+[32m+[m
+[32m+[m[32m                String[] data = line.split("\\|");[m
+[32m+[m
+[32m+[m[32m                // bookingId|studentId|roomId|date|startTime|endTime|participantCount|status[m
+[32m+[m[32m                if (data.length != 😎 {[m
+[32m+[m[32m                    continue;[m
+[32m+[m[32m                }[m
+[32m+[m
+[32m+[m[32m                Booking booking = buildBooking(data);[m
+[32m+[m
+[32m+[m[32m                if (booking != null) {[m
+[32m+[m[32m                    bookings.add(booking);[m
+[32m+[m[32m                }[m
+[32m+[m[32m            }[m
+[32m+[m
+[32m+[m[32m        } catch (IOException e) {[m
+[32m+[m[32m            System.out.println("Loi doc file dat phong: " + e.getMessage());[m
+[32m+[m[32m        }[m
+[32m+[m
+[32m+[m[32m        return bookings;[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    // Dựng lại object Booking từ dòng dữ liệu text[m
+[32m+[m[32m    private Booking buildBooking(String[] data) {[m
+[32m+[m
+[32m+[m[32m        try {[m
+[32m+[m
+[32m+[m[32m            String bookingId = data[0];[m
+[32m+[m[32m            String studentId = data[1];[m
+[32m+[m[32m            String roomId = data[2];[m
+[32m+[m[32m            LocalDate date = LocalDate.parse(data[3]);[m
+[32m+[m[32m            LocalTime startTime = LocalTime.parse(data[4]);[m
+[32m+[m[32m            LocalTime endTime = LocalTime.parse(data[5]);[m
+[32m+[m[32m            int participantCount = Integer.parseInt(data[6]);[m
+[32m+[m[32m            String status = data[7];[m
+[32m+[m
+[32m+[m[32m            Student student = studentRepository.findById(studentId);[m
+[32m+[m[32m            Room room = roomRepository.findById(roomId);[m
+[32m+[m
+[32m+[m[32m            if (student == null || room == null) {[m
+[32m+[m[32m                System.out.println([m
+[32m+[m[32m                        "Bo qua booking " + bookingId[m
+[32m+[m[32m                                + ": khong tim thay sinh vien hoac phong");[m
+[32m+[m[32m                return null;[m
+[32m+[m[32m            }[m
+[32m+[m
+[32m+[m[32m            TimeSlot timeSlot = new TimeSlot(date, startTime, endTime);[m
+[32m+[m
+[32m+[m[32m            return new Booking(bookingId, student, room, timeSlot, participantCount, status);[m
+[32m+[m
+[32m+[m[32m        } catch (Exception e) {[m
+[32m+[m[32m            System.out.println("Loi doc dong du lieu booking: " + e.getMessage());[m
+[32m+[m[32m            return null;[m
+[32m+[m[32m        }[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    public Booking findById(String bookingId) {[m
+[32m+[m
+[32m+[m[32m        for (Booking booking : getAll()) {[m
+[32m+[m[32m            if (booking.getBookingId().equalsIgnoreCase(bookingId)) {[m
+[32m+[m[32m                return booking;[m
+[32m+[m[32m            }[m
+[32m+[m[32m        }[m
+[32m+[m
+[32m+[m[32m        return null;[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    public List<Booking> findByStudentId(String studentId) {[m
+[32m+[m
+[32m+[m[32m        List<Booking> result = new ArrayList<>();[m
+[32m+[m
+[32m+[m[32m        for (Booking booking : getAll()) {[m
+[32m+[m[32m            if (booking.getStudent() != null[m
+[32m+[m[32m                    && booking.getStudent().getUserId().equalsIgnoreCase(studentId)) {[m
+[32m+[m[32m                result.add(booking);[m
+[32m+[m[32m            }[m
+[32m+[m[32m        }[m
+[32m+[m
+[32m+[m[32m        return result;[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    public List<Booking> findByRoomId(String roomId) {[m
+[32m+[m
+[32m+[m[32m        List<Booking> result = new ArrayList<>();[m
+[32m+[m
+[32m+[m[32m        for (Booking booking : getAll()) {[m
+[32m+[m[32m            if (booking.getRoom() != null[m
+[32m+[m[32m                    && booking.getRoom().getRoomId().equalsIgnoreCase(roomId)) {[m
+[32m+[m[32m                result.add(booking);[m
+[32m+[m[32m            }[m
+[32m+[m[32m        }[m
+[32m+[m
+[32m+[m[32m        return result;[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    // Ghi thêm 1 booking mới vào cuối file[m
+[32m+[m[32m    public void save(Booking booking) {[m
+[32m+[m
+[32m+[m[32m        try (BufferedWriter writer =[m
+[32m+[m[32m                     new BufferedWriter(new FileWriter(FILE_NAME, true))) {[m
+[32m+[m
+[32m+[m[32m            writer.write(toLine(booking));[m
+[32m+[m[32m            writer.newLine();[m
+[32m+[m
+[32m+[m[32m        } catch (IOException e) {[m
+[32m+[m[32m            System.out.println("Loi ghi file dat phong: " + e.getMessage());[m
+[32m+[m[32m        }[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    // Ghi lại toàn bộ danh sách (dùng khi update/cancel)[m
+[32m+[m[32m    public void saveAll(List<Booking> bookings) {[m
+[32m+[m
+[32m+[m[32m        try (BufferedWriter writer =[m
+[32m+[m[32m                     new BufferedWriter(new FileWriter(FILE_NAME))) {[m
+[32m+[m
+[32m+[m[32m            for (Booking booking : bookings) {[m
+[32m+[m[32m                writer.write(toLine(booking));[m
+[32m+[m[32m                writer.newLine();[m
+[32m+[m[32m            }[m
+[32m+[m
+[32m+[m[32m        } catch (IOException e) {[m
+[32m+[m[32m            System.out.println("Loi ghi file dat phong: " + e.getMessage());[m
+[32m+[m[32m        }[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    private String toLine(Booking booking) {[m
+[32m+[m
+[32m+[m[32m        TimeSlot timeSlot = booking.getTimeSlot();[m
+[32m+[m
+[32m+[m[32m        return booking.getBookingId() + "|" +[m
+[32m+[m[32m                booking.getStudent().getUserId() + "|" +[m
+[32m+[m[32m                booking.getRoom().getRoomId() + "|" +[m
+[32m+[m[32m                timeSlot.getDate() + "|" +[m
+[32m+[m[32m                timeSlot.getStartTime() + "|" +[m
+[32m+[m[32m                timeSlot.getEndTime() + "|" +[m
+[32m+[m[32m                booking.getParticipantCount() + "|" +[m
+[32m+[m[32m                booking.getStatus();[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    public boolean cancel(String bookingId) {[m
+[32m+[m
+[32m+[m[32m        List<Booking> bookings = getAll();[m
+[32m+[m
+[32m+[m[32m        boolean found = false;[m
+[32m+[m
+[32m+[m[32m        for (Booking booking : bookings) {[m
+[32m+[m
+[32m+[m[32m            if (booking.getBookingId().equalsIgnoreCase(bookingId)) {[m
+[32m+[m[32m                booking.setStatus("Đã hủy");[m
+[32m+[m[32m                found = true;[m
+[32m+[m[32m                break;[m
+[32m+[m[32m            }[m
+[32m+[m[32m        }[m
+[32m+[m
+[32m+[m[32m        if (found) {[m
+[32m+[m[32m            saveAll(bookings);[m
+[32m+[m[32m        }[m
+[32m+[m
+[32m+[m[32m        return found;[m
+[32m+[m[32m    }[m
+[32m+[m[32m}[m
+\ No newline at end of file[m
+[1mdiff --git a/src/repository/RoomRepository.java b/src/repository/RoomRepository.java[m
+[1mindex a22a5a3..12c8a09 100644[m
+[1m--- a/src/repository/RoomRepository.java[m
+[1m+++ b/src/repository/RoomRepository.java[m
+[36m@@ -1,4 +1,199 @@[m
+[31m-package repository;[m
+[32m+[m
+[32m+[m
+[32m+[m[32m        package repository;[m
+[32m+[m
+[32m+[m[32mimport model.NormalRoom;[m
+[32m+[m[32mimport model.ProjectorRoom;[m
+[32m+[m[32mimport model.Room;[m
+[32m+[m[32mimport model.SeminarRoom;[m
+[32m+[m
+[32m+[m[32mimport java.io.*;[m
+[32m+[m[32mimport java.util.ArrayList;[m
+[32m+[m[32mimport java.util.List;[m
+ [m
+ public class RoomRepository {[m
+[32m+[m
+[32m+[m[32m    private static final String FILE_NAME = "data/rooms.txt";[m
+[32m+[m
+[32m+[m[32m    // Đọc tất cả phòng[m
+[32m+[m[32m    public List<Room> getAll() {[m
+[32m+[m
+[32m+[m[32m        List<Room> rooms = new ArrayList<>();[m
+[32m+[m
+[32m+[m[32m        File file = new File(FILE_NAME);[m
+[32m+[m
+[32m+[m[32m        if (!file.exists()) {[m
+[32m+[m[32m            return rooms;[m
+[32m+[m[32m        }[m
+[32m+[m
+[32m+[m[32m        try (BufferedReader reader =[m
+[32m+[m[32m                     new BufferedReader(new FileReader(file))) {[m
+[32m+[m
+[32m+[m[32m            String line;[m
+[32m+[m
+[32m+[m[32m            while ((line = reader.readLine()) != null) {[m
+[32m+[m
+[32m+[m[32m                if (line.trim().isEmpty()) {[m
+[32m+[m[32m                    continue;[m
+[32m+[m[32m                }[m
+[32m+[m
+[32m+[m[32m                String[] data = line.split("\\|");[m
+[32m+[m
+[32m+[m[32m                if (data.length != 6) {[m
+[32m+[m[32m                    continue;[m
+[32m+[m[32m                }[m
+[32m+[m
+[32m+[m[32m                String roomId = data[0];[m
+[32m+[m[32m                String roomName = data[1];[m
+[32m+[m[32m                int floor = Integer.parseInt(data[2]);[m
+[32m+[m[32m                int capacity = Integer.parseInt(data[3]);[m
+[32m+[m[32m                String roomType = data[4];[m
+[32m+[m[32m                String status = data[5];[m
+[32m+[m
+[32m+[m[32m                Room room = createRoom(roomType, roomId, roomName, floor, capacity, status);[m
+[32m+[m
+[32m+[m[32m                if (room != null) {[m
+[32m+[m[32m                    rooms.add(room);[m
+[32m+[m[32m                }[m
+[32m+[m[32m            }[m
+[32m+[m
+[32m+[m[32m        } catch (IOException | NumberFormatException e) {[m
+[32m+[m
+[32m+[m[32m            System.out.println("Loi doc file phong: " + e.getMessage());[m
+[32m+[m[32m        }[m
+[32m+[m
+[32m+[m[32m        return rooms;[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    // Tạo đúng loại phòng dựa theo chuỗi roomType đọc từ file[m
+[32m+[m[32m    private Room createRoom(String roomType,[m
+[32m+[m[32m                            String roomId,[m
+[32m+[m[32m                            String roomName,[m
+[32m+[m[32m                            int floor,[m
+[32m+[m[32m                            int capacity,[m
+[32m+[m[32m                            String status) {[m
+[32m+[m
+[32m+[m[32m        switch (roomType.toLowerCase()) {[m
+[32m+[m
+[32m+[m[32m            case "normal":[m
+[32m+[m[32m                return new NormalRoom(roomId, roomName, floor, capacity, status);[m
+[32m+[m
+[32m+[m[32m            case "projector":[m
+[32m+[m[32m                return new ProjectorRoom(roomId, roomName, floor, capacity, status);[m
+[32m+[m
+[32m+[m[32m            case "seminar":[m
+[32m+[m[32m                return new SeminarRoom(roomId, roomName, floor, capacity, status);[m
+[32m+[m
+[32m+[m[32m            default:[m
+[32m+[m[32m                System.out.println("Loai phong khong hop le: " + roomType);[m
+[32m+[m[32m                return null;[m
+[32m+[m[32m        }[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    // Suy ra chuỗi loại phòng từ kiểu class thực tế (vì Room không có field roomType)[m
+[32m+[m[32m    private String resolveRoomType(Room room) {[m
+[32m+[m
+[32m+[m[32m        if (room instanceof NormalRoom) {[m
+[32m+[m[32m            return "normal";[m
+[32m+[m[32m        }[m
+[32m+[m
+[32m+[m[32m        if (room instanceof ProjectorRoom) {[m
+[32m+[m[32m            return "projector";[m
+[32m+[m[32m        }[m
+[32m+[m
+[32m+[m[32m        if (room instanceof SeminarRoom) {[m
+[32m+[m[32m            return "seminar";[m
+[32m+[m[32m        }[m
+[32m+[m
+[32m+[m[32m        return "unknown";[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    // Tìm phòng theo mã[m
+[32m+[m[32m    public Room findById(String roomId) {[m
+[32m+[m
+[32m+[m[32m        for (Room room : getAll()) {[m
+[32m+[m[32m            if (room.getRoomId().equalsIgnoreCase(roomId)) {[m
+[32m+[m[32m                return room;[m
+[32m+[m[32m            }[m
+[32m+[m[32m        }[m
+[32m+[m
+[32m+[m[32m        return null;[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    // Tìm phòng theo loại[m
+[32m+[m[32m    public List<Room> findByType(String roomType) {[m
+[32m+[m
+[32m+[m[32m        List<Room> result = new ArrayList<>();[m
+[32m+[m
+[32m+[m[32m        for (Room room : getAll()) {[m
+[32m+[m[32m            if (resolveRoomType(room).equalsIgnoreCase(roomType)) {[m
+[32m+[m[32m                result.add(room);[m
+[32m+[m[32m            }[m
+[32m+[m[32m        }[m
+[32m+[m
+[32m+[m[32m        return result;[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    // Thêm phòng[m
+[32m+[m[32m    public void save(Room room) {[m
+[32m+[m
+[32m+[m[32m        try (BufferedWriter writer =[m
+[32m+[m[32m                     new BufferedWriter(new FileWriter(FILE_NAME, true))) {[m
+[32m+[m
+[32m+[m[32m            writer.write([m
+[32m+[m[32m                    room.getRoomId() + "|" +[m
+[32m+[m[32m                            room.getRoomName() + "|" +[m
+[32m+[m[32m                            room.getFloor() + "|" +[m
+[32m+[m[32m                            room.getCapacity() + "|" +[m
+[32m+[m[32m                            resolveRoomType(room) + "|" +[m
+[32m+[m[32m                            room.getStatus()[m
+[32m+[m[32m            );[m
+[32m+[m
+[32m+[m[32m            writer.newLine();[m
+[32m+[m
+[32m+[m[32m        } catch (IOException e) {[m
+[32m+[m
+[32m+[m[32m            System.out.println("Loi ghi file phong: " + e.getMessage());[m
+[32m+[m[32m        }[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    // Ghi lại toàn bộ danh sách phòng (dùng khi xóa/cập nhật)[m
+[32m+[m[32m    public void saveAll(List<Room> rooms) {[m
+[32m+[m
+[32m+[m[32m        try (BufferedWriter writer =[m
+[32m+[m[32m                     new BufferedWriter(new FileWriter(FILE_NAME))) {[m
+[32m+[m
+[32m+[m[32m            for (Room room : rooms) {[m
+[32m+[m
+[32m+[m[32m                writer.write([m
+[32m+[m[32m                        room.getRoomId() + "|" +[m
+[32m+[m[32m                                room.getRoomName() + "|" +[m
+[32m+[m[32m                                room.getFloor() + "|" +[m
+[32m+[m[32m                                room.getCapacity() + "|" +[m
+[32m+[m[32m                                resolveRoomType(room) + "|" +[m
+[32m+[m[32m                                room.getStatus()[m
+[32m+[m[32m                );[m
+[32m+[m
+[32m+[m[32m                writer.newLine();[m
+[32m+[m[32m            }[m
+[32m+[m
+[32m+[m[32m        } catch (IOException e) {[m
+[32m+[m[32m            System.out.println("Loi ghi file phong: " + e.getMessage());[m
+[32m+[m[32m        }[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    // Xóa phòng theo mã[m
+[32m+[m[32m    public boolean remove(String roomId) {[m
+[32m+[m
+[32m+[m[32m        List<Room> rooms = getAll();[m
+[32m+[m
+[32m+[m[32m        boolean removed = rooms.removeIf([m
+[32m+[m[32m                room -> room.getRoomId().equalsIgnoreCase(roomId));[m
+[32m+[m
+[32m+[m[32m        if (removed) {[m
+[32m+[m[32m            saveAll(rooms);[m
+[32m+[m[32m        }[m
+[32m+[m
+[32m+[m[32m        return removed;[m
+[32m+[m[32m    }[m
+ }[m
+[1mdiff --git a/src/repository/StudentRepository.java b/src/repository/StudentRepository.java[m
+[1mindex ceac1f9..0ce552e 100644[m
+[1m--- a/src/repository/StudentRepository.java[m
+[1m+++ b/src/repository/StudentRepository.java[m
+[36m@@ -1,4 +1,90 @@[m
+ package repository;[m
+ [m
+[32m+[m[32mimport model.Student;[m
+[32m+[m
+[32m+[m[32mimport java.io.*;[m
+[32m+[m[32mimport java.util.ArrayList;[m
+[32m+[m[32mimport java.util.List;[m
+[32m+[m
+ public class StudentRepository {[m
+[31m-}[m
+[32m+[m
+[32m+[m[32m    private static final String FILE_NAME = "data/students.txt";[m
+[32m+[m
+[32m+[m[32m    public List<Student> getAll() {[m
+[32m+[m
+[32m+[m[32m        List<Student> students = new ArrayList<>();[m
+[32m+[m
+[32m+[m[32m        File file = new File(FILE_NAME);[m
+[32m+[m
+[32m+[m[32m        if (!file.exists()) {[m
+[32m+[m[32m            return students;[m
+[32m+[m[32m        }[m
+[32m+[m
+[32m+[m[32m        try (BufferedReader reader =[m
+[32m+[m[32m                     new BufferedReader(new FileReader(file))) {[m
+[32m+[m
+[32m+[m[32m            String line;[m
+[32m+[m
+[32m+[m[32m            while ((line = reader.readLine()) != null) {[m
+[32m+[m
+[32m+[m[32m                if (line.trim().isEmpty()) {[m
+[32m+[m[32m                    continue;[m
+[32m+[m[32m                }[m
+[32m+[m
+[32m+[m[32m                String[] data = line.split("\\|");[m
+[32m+[m
+[32m+[m[32m                if (data.length != 5) {[m
+[32m+[m[32m                    continue;[m
+[32m+[m[32m                }[m
+[32m+[m
+[32m+[m[32m                // studentId|name|phone|className|email[m
+[32m+[m[32m                Student student = new Student([m
+[32m+[m[32m                        data[0],[m
+[32m+[m[32m                        data[1],[m
+[32m+[m[32m                        data[2],[m
+[32m+[m[32m                        data[3],[m
+[32m+[m[32m                        data[4][m
+[32m+[m[32m                );[m
+[32m+[m
+[32m+[m[32m                students.add(student);[m
+[32m+[m[32m            }[m
+[32m+[m
+[32m+[m[32m        } catch (IOException e) {[m
+[32m+[m[32m            System.out.println("Loi doc file sinh vien: " + e.getMessage());[m
+[32m+[m[32m        }[m
+[32m+[m
+[32m+[m[32m        return students;[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    public Student findById(String studentId) {[m
+[32m+[m
+[32m+[m[32m        for (Student student : getAll()) {[m
+[32m+[m[32m            if (student.getUserId().equalsIgnoreCase(studentId)) {[m
+[32m+[m[32m                return student;[m
+[32m+[m[32m            }[m
+[32m+[m[32m        }[m
+[32m+[m
+[32m+[m[32m        return null;[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    public void save(Student student) {[m
+[32m+[m
+[32m+[m[32m        try (BufferedWriter writer =[m
+[32m+[m[32m                     new BufferedWriter([m
+[32m+[m[32m                             new FileWriter(FILE_NAME, true))) {[m
+[32m+[m
+[32m+[m[32m            writer.write([m
+[32m+[m[32m                    student.getUserId() + "|" +[m
+[32m+[m[32m                            student.getName() + "|" +[m
+[32m+[m[32m                            student.getPhone() + "|" +[m
+[32m+[m[32m                            student.getClassName() + "|" +[m
+[32m+[m[32m                            student.getEmail()[m
+[32m+[m[32m            );[m
+[32m+[m
+[32m+[m[32m            writer.newLine();[m
+[32m+[m
+[32m+[m[32m        } catch (IOException e) {[m
+[32m+[m[32m            System.out.println("Loi ghi file sinh vien: " + e.getMessage());[m
+[32m+[m[32m        }[m
+[32m+[m[32m    }[m
+[32m+[m[32m}[m
+\ No newline at end of file[m
