@@ -1,147 +1,105 @@
 package service;
 
+import exception.BookingException;
 import model.Booking;
 import model.Room;
 import model.Student;
+import model.TimeSlot;
 
-import java.time.Duration;
 import java.time.LocalDate;
 import java.util.List;
 
 public class BookingValidator {
 
+    private static final long MAX_MINUTES_PER_DAY = 4 * 60;
+
     public void validateStudent(Student student) {
 
         if (student == null) {
-            throw new IllegalArgumentException(
-                    "Sinh vien khong ton tai!"
-            );
+            throw new BookingException("Sinh vien khong ton tai!");
         }
     }
 
     public void validateRoom(Room room) {
 
         if (room == null) {
-            throw new IllegalArgumentException(
-                    "Phong khong ton tai!"
-            );
+            throw new BookingException("Phong khong ton tai!");
         }
 
-        if (!room.isActive()) {
-            throw new IllegalArgumentException(
-                    "Phong dang bao tri, khong the dat!"
-            );
+        if (!room.isAvailable()) {
+            throw new BookingException("Phong dang bao tri, khong the dat!");
         }
     }
 
-    public void validateTime(
-            java.time.LocalDateTime startTime,
-            java.time.LocalDateTime endTime) {
+    public void validateTimeSlot(TimeSlot timeSlot) {
 
-        if (startTime == null || endTime == null) {
-            throw new IllegalArgumentException(
-                    "Thoi gian khong duoc de trong!"
-            );
-        }
-
-        if (!endTime.isAfter(startTime)) {
-            throw new IllegalArgumentException(
-                    "Thoi gian ket thuc phai lon hon thoi gian bat dau!"
-            );
+        if (timeSlot == null || !timeSlot.isValid()) {
+            throw new BookingException(
+                    "Khung gio khong hop le (thieu du lieu hoac gio ket thuc truoc gio bat dau)!");
         }
     }
 
-    public void validateCapacity(
-            Room room,
-            int numberOfPeople) {
+    public void validateCapacity(Room room, int numberOfPeople) {
 
         if (numberOfPeople <= 0) {
-            throw new IllegalArgumentException(
-                    "So luong nguoi phai lon hon 0!"
-            );
+            throw new BookingException("So luong nguoi phai lon hon 0!");
         }
 
         if (numberOfPeople > room.getCapacity()) {
-            throw new IllegalArgumentException(
-                    "So luong nguoi vuot qua suc chua cua phong!"
-            );
+            throw new BookingException("So luong nguoi vuot qua suc chua cua phong!");
         }
     }
 
-    public void validateOverlap(
-            Room room,
-            java.time.LocalDateTime startTime,
-            java.time.LocalDateTime endTime,
-            List<Booking> bookings) {
+    public void validateOverlap(Room room,
+                                TimeSlot timeSlot,
+                                List<Booking> bookings) {
 
         for (Booking booking : bookings) {
 
-            if (!booking.getRoom().getRoomId()
-                    .equals(room.getRoomId())) {
+            if (!booking.getRoom().getRoomId().equals(room.getRoomId())) {
                 continue;
             }
 
-            if (!booking.getStatus().equals("Đã đặt")) {
+            if (!"Đã đặt".equals(booking.getStatus())) {
                 continue;
             }
 
-            boolean overlap =
-                    startTime.isBefore(booking.getEndTime())
-                            && endTime.isAfter(booking.getStartTime());
-
-            if (overlap) {
-                throw new IllegalArgumentException(
-                        "Phong da bi trung lich trong khoang thoi gian nay!"
-                );
+            if (timeSlot.isOverlapping(booking.getTimeSlot())) {
+                throw new BookingException(
+                        "Phong da bi trung lich trong khoang thoi gian nay!");
             }
         }
     }
 
-    public void validateDailyLimit(
-            Student student,
-            java.time.LocalDateTime startTime,
-            java.time.LocalDateTime endTime,
-            List<Booking> bookings) {
+    public void validateDailyLimit(Student student,
+                                   TimeSlot timeSlot,
+                                   List<Booking> bookings) {
 
-        LocalDate date = startTime.toLocalDate();
+        LocalDate date = timeSlot.getDate();
 
-        long newMinutes = Duration.between(
-                startTime,
-                endTime
-        ).toMinutes();
-
-        long totalMinutes = newMinutes;
+        long totalMinutes = timeSlot.getHours() * 60L;
 
         for (Booking booking : bookings) {
 
-            if (!booking.getStudent()
-                    .getStudentId()
-                    .equals(student.getStudentId())) {
+            if (!booking.getStudent().getUserId().equals(student.getUserId())) {
                 continue;
             }
 
-            if (!booking.getStatus().equals("Đã đặt")) {
+            if (!"Đã đặt".equals(booking.getStatus())) {
                 continue;
             }
 
-            if (!booking.getStartTime()
-                    .toLocalDate()
-                    .equals(date)) {
+            TimeSlot bookedSlot = booking.getTimeSlot();
+
+            if (!bookedSlot.getDate().equals(date)) {
                 continue;
             }
 
-            long minutes = Duration.between(
-                    booking.getStartTime(),
-                    booking.getEndTime()
-            ).toMinutes();
-
-            totalMinutes += minutes;
+            totalMinutes += bookedSlot.getHours() * 60L;
         }
 
-        if (totalMinutes > 4 * 60) {
-            throw new IllegalArgumentException(
-                    "Sinh vien khong duoc dat qua 4 gio trong mot ngay!"
-            );
+        if (totalMinutes > MAX_MINUTES_PER_DAY) {
+            throw new BookingException("Sinh vien khong duoc dat qua 4 gio trong mot ngay!");
         }
     }
 }
