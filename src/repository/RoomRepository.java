@@ -1,4 +1,6 @@
-package repository;
+
+
+        package repository;
 
 import model.NormalRoom;
 import model.ProjectorRoom;
@@ -11,7 +13,7 @@ import java.util.List;
 
 public class RoomRepository {
 
-    private static final String FILE_NAME = "rooms.txt";
+    private static final String FILE_NAME = "data/rooms.txt";
 
     // Đọc tất cả phòng
     public List<Room> getAll() {
@@ -48,40 +50,7 @@ public class RoomRepository {
                 String roomType = data[4];
                 String status = data[5];
 
-                Room room = null;
-
-                switch (roomType.toLowerCase()) {
-
-                    case "normal":
-                        room = new NormalRoom(
-                                roomId,
-                                roomName,
-                                floor,
-                                capacity,
-                                status
-                        );
-                        break;
-
-                    case "projector":
-                        room = new ProjectorRoom(
-                                roomId,
-                                roomName,
-                                floor,
-                                capacity,
-                                status
-                        );
-                        break;
-
-                    case "seminar":
-                        room = new SeminarRoom(
-                                roomId,
-                                roomName,
-                                floor,
-                                capacity,
-                                status
-                        );
-                        break;
-                }
+                Room room = createRoom(roomType, roomId, roomName, floor, capacity, status);
 
                 if (room != null) {
                     rooms.add(room);
@@ -90,25 +59,60 @@ public class RoomRepository {
 
         } catch (IOException | NumberFormatException e) {
 
-            System.out.println(
-                    "Loi doc file phong: "
-                            + e.getMessage()
-            );
+            System.out.println("Loi doc file phong: " + e.getMessage());
         }
 
         return rooms;
     }
 
+    // Tạo đúng loại phòng dựa theo chuỗi roomType đọc từ file
+    private Room createRoom(String roomType,
+                            String roomId,
+                            String roomName,
+                            int floor,
+                            int capacity,
+                            String status) {
+
+        switch (roomType.toLowerCase()) {
+
+            case "normal":
+                return new NormalRoom(roomId, roomName, floor, capacity, status);
+
+            case "projector":
+                return new ProjectorRoom(roomId, roomName, floor, capacity, status);
+
+            case "seminar":
+                return new SeminarRoom(roomId, roomName, floor, capacity, status);
+
+            default:
+                System.out.println("Loai phong khong hop le: " + roomType);
+                return null;
+        }
+    }
+
+    // Suy ra chuỗi loại phòng từ kiểu class thực tế (vì Room không có field roomType)
+    private String resolveRoomType(Room room) {
+
+        if (room instanceof NormalRoom) {
+            return "normal";
+        }
+
+        if (room instanceof ProjectorRoom) {
+            return "projector";
+        }
+
+        if (room instanceof SeminarRoom) {
+            return "seminar";
+        }
+
+        return "unknown";
+    }
+
     // Tìm phòng theo mã
     public Room findById(String roomId) {
 
-        List<Room> rooms = getAll();
-
-        for (Room room : rooms) {
-
-            if (room.getRoomId()
-                    .equalsIgnoreCase(roomId)) {
-
+        for (Room room : getAll()) {
+            if (room.getRoomId().equalsIgnoreCase(roomId)) {
                 return room;
             }
         }
@@ -121,13 +125,8 @@ public class RoomRepository {
 
         List<Room> result = new ArrayList<>();
 
-        List<Room> rooms = getAll();
-
-        for (Room room : rooms) {
-
-            if (room.getRoomType()
-                    .equalsIgnoreCase(roomType)) {
-
+        for (Room room : getAll()) {
+            if (resolveRoomType(room).equalsIgnoreCase(roomType)) {
                 result.add(room);
             }
         }
@@ -139,15 +138,14 @@ public class RoomRepository {
     public void save(Room room) {
 
         try (BufferedWriter writer =
-                     new BufferedWriter(
-                             new FileWriter(FILE_NAME, true))) {
+                     new BufferedWriter(new FileWriter(FILE_NAME, true))) {
 
             writer.write(
                     room.getRoomId() + "|" +
                             room.getRoomName() + "|" +
                             room.getFloor() + "|" +
                             room.getCapacity() + "|" +
-                            room.getRoomType() + "|" +
+                            resolveRoomType(room) + "|" +
                             room.getStatus()
             );
 
@@ -155,11 +153,47 @@ public class RoomRepository {
 
         } catch (IOException e) {
 
-            System.out.println(
-                    "Loi ghi file phong: "
-                            + e.getMessage()
-            );
+            System.out.println("Loi ghi file phong: " + e.getMessage());
         }
     }
+
+    // Ghi lại toàn bộ danh sách phòng (dùng khi xóa/cập nhật)
+    public void saveAll(List<Room> rooms) {
+
+        try (BufferedWriter writer =
+                     new BufferedWriter(new FileWriter(FILE_NAME))) {
+
+            for (Room room : rooms) {
+
+                writer.write(
+                        room.getRoomId() + "|" +
+                                room.getRoomName() + "|" +
+                                room.getFloor() + "|" +
+                                room.getCapacity() + "|" +
+                                resolveRoomType(room) + "|" +
+                                room.getStatus()
+                );
+
+                writer.newLine();
+            }
+
+        } catch (IOException e) {
+            System.out.println("Loi ghi file phong: " + e.getMessage());
+        }
+    }
+
+    // Xóa phòng theo mã
+    public boolean remove(String roomId) {
+
+        List<Room> rooms = getAll();
+
+        boolean removed = rooms.removeIf(
+                room -> room.getRoomId().equalsIgnoreCase(roomId));
+
+        if (removed) {
+            saveAll(rooms);
+        }
+
+        return removed;
+    }
 }
-////
