@@ -48,7 +48,7 @@ public class BookingRepository {
                 String[] data = line.split("\\|");
 
                 // bookingId|studentId|roomId|date|startTime|endTime|participantCount|status
-                if (data.length != 😎 {
+                if (data.length != 8) {
                     continue;
                 }
 

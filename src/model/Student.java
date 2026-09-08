@@ -1,23 +1,15 @@
 package model;
 
-/**
- * Lớp Student đại diện cho sinh viên đặt phòng.
- * Student kế thừa các thông tin chung từ User.
- */
 public class Student extends User {
 
     private String className;
 
-    /**
-     * Constructor mặc định.
-     */
+    // Constructor mặc định
     public Student() {
         super();
     }
 
-    /**
-     * Constructor đầy đủ thông tin sinh viên.
-     */
+    // Constructor đầy đủ
     public Student(String studentId,
                    String name,
                    String phone,
@@ -28,10 +20,12 @@ public class Student extends User {
         this.className = className;
     }
 
+    // Getter
     public String getClassName() {
         return className;
     }
 
+    // Setter
     public void setClassName(String className) {
         this.className = className;
     }
@@ -46,4 +40,4 @@ public class Student extends User {
                 ", email='" + getEmail() + '\'' +
                 '}';
     }
-}
+}//

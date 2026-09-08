@@ -1,20 +1,16 @@
 package model;
 
-/**
- * Phòng học nhóm thông thường.
- */
 public class NormalRoom extends Room {
 
-    /**
-     * Constructor mặc định.
-     */
+    // Phòng thường được miễn phí
+    private static final double FEE_PER_HOUR = 0;
+
+    // Constructor mặc định
     public NormalRoom() {
         super();
     }
 
-    /**
-     * Constructor đầy đủ thông tin.
-     */
+    // Constructor đầy đủ
     public NormalRoom(String roomId,
                       String roomName,
                       int floor,
@@ -24,12 +20,15 @@ public class NormalRoom extends Room {
         super(roomId, roomName, floor, capacity, status);
     }
 
-    /**
-     * Phòng thường được miễn phí.
-     */
+    // Tính phí thuê phòng
     @Override
     public double calculateFee(int hours) {
-        return 0;
+
+        if (hours <= 0) {
+            return 0;
+        }
+
+        return hours * FEE_PER_HOUR;
     }
 
     @Override
@@ -42,4 +41,4 @@ public class NormalRoom extends Room {
                 ", status='" + getStatus() + '\'' +
                 '}';
     }
-}
+}//

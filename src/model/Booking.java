@@ -1,19 +1,6 @@
 package model;
 
-/**
- * Lớp Booking đại diện cho một lịch đặt phòng.
- */
 public class Booking {
-
-    /**
-     * Trạng thái lịch đã đặt.
-     */
-    public static final String STATUS_BOOKED = "Đã đặt";
-
-    /**
-     * Trạng thái lịch đã hủy.
-     */
-    public static final String STATUS_CANCELED = "Đã hủy";
 
     private String bookingId;
     private Student student;
@@ -22,15 +9,11 @@ public class Booking {
     private int participantCount;
     private String status;
 
-    /**
-     * Constructor mặc định.
-     */
+    // Constructor mặc định
     public Booking() {
     }
 
-    /**
-     * Constructor đầy đủ thông tin booking.
-     */
+    // Constructor đầy đủ
     public Booking(String bookingId,
                    Student student,
                    Room room,
@@ -46,68 +29,70 @@ public class Booking {
         this.status = status;
     }
 
+    // Getter
     public String getBookingId() {
         return bookingId;
-    }
-
-    public void setBookingId(String bookingId) {
-        this.bookingId = bookingId;
     }
 
     public Student getStudent() {
         return student;
     }
 
-    public void setStudent(Student student) {
-        this.student = student;
-    }
-
     public Room getRoom() {
         return room;
-    }
-
-    public void setRoom(Room room) {
-        this.room = room;
     }
 
     public TimeSlot getTimeSlot() {
         return timeSlot;
     }
 
-    public void setTimeSlot(TimeSlot timeSlot) {
-        this.timeSlot = timeSlot;
-    }
-
     public int getParticipantCount() {
         return participantCount;
-    }
-
-    public void setParticipantCount(int participantCount) {
-        this.participantCount = participantCount;
     }
 
     public String getStatus() {
         return status;
     }
 
+    // Setter
+    public void setBookingId(String bookingId) {
+        this.bookingId = bookingId;
+    }
+
+    public void setStudent(Student student) {
+        this.student = student;
+    }
+
+    public void setRoom(Room room) {
+        this.room = room;
+    }
+
+    public void setTimeSlot(TimeSlot timeSlot) {
+        this.timeSlot = timeSlot;
+    }
+
+    public void setParticipantCount(int participantCount) {
+        this.participantCount = participantCount;
+    }
+
     public void setStatus(String status) {
         this.status = status;
     }
 
-    /**
-     * Kiểm tra booking đã bị hủy chưa.
-     */
-    public boolean isCanceled() {
-        return STATUS_CANCELED.equalsIgnoreCase(status)
-                || "Canceled".equalsIgnoreCase(status);
-    }
+    // Tính phí của lịch đặt
+    public double calculateFee() {
 
-    /**
-     * Kiểm tra booking đang ở trạng thái đã đặt.
-     */
-    public boolean isBooked() {
-        return STATUS_BOOKED.equalsIgnoreCase(status)
-                || "Booked".equalsIgnoreCase(status);
+        if (room == null || timeSlot == null) {
+            return 0;
+        }
+
+        int hours = (int) timeSlot.getHours();
+
+        if (hours <= 0) {
+            return 0;
+        }
+
+        return room.calculateFee(hours);
     }
 
     @Override
@@ -123,4 +108,4 @@ public class Booking {
                 ", status='" + status + '\'' +
                 '}';
     }
-}
+}//

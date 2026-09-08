@@ -12,3 +12,5 @@ public class SeminarRoomFeePolicy implements RoomFeePolicy {
         long hours = booking.getTimeSlot().getHours();
 
         return hours * PRICE_PER_HOUR;
+    }
+}

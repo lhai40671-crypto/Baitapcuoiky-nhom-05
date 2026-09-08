@@ -4,24 +4,17 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-/**
- * Đại diện cho một khung thời gian đặt phòng.
- */
 public class TimeSlot {
 
     private LocalDate date;
     private LocalTime startTime;
     private LocalTime endTime;
 
-    /**
-     * Constructor mặc định.
-     */
+    // Constructor mặc định
     public TimeSlot() {
     }
 
-    /**
-     * Constructor đầy đủ.
-     */
+    // Constructor đầy đủ
     public TimeSlot(LocalDate date,
                     LocalTime startTime,
                     LocalTime endTime) {
@@ -31,39 +24,33 @@ public class TimeSlot {
         this.endTime = endTime;
     }
 
+    // Getter
     public LocalDate getDate() {
         return date;
-    }
-
-    public void setDate(LocalDate date) {
-        this.date = date;
     }
 
     public LocalTime getStartTime() {
         return startTime;
     }
 
-    public void setStartTime(LocalTime startTime) {
-        this.startTime = startTime;
-    }
-
     public LocalTime getEndTime() {
         return endTime;
+    }
+
+    // Setter
+    public void setDate(LocalDate date) {
+        this.date = date;
+    }
+
+    public void setStartTime(LocalTime startTime) {
+        this.startTime = startTime;
     }
 
     public void setEndTime(LocalTime endTime) {
         this.endTime = endTime;
     }
 
-    /**
-     * Kiểm tra khung thời gian có hợp lệ.
-     *
-     * Điều kiện:
-     * - Ngày không được null.
-     * - Giờ bắt đầu không được null.
-     * - Giờ kết thúc không được null.
-     * - Giờ kết thúc phải lớn hơn giờ bắt đầu.
-     */
+    // Kiểm tra khung giờ có hợp lệ không
     public boolean isValid() {
 
         if (date == null) {
@@ -77,56 +64,33 @@ public class TimeSlot {
         return endTime.isAfter(startTime);
     }
 
-    /**
-     * Kiểm tra hai khung thời gian có bị trùng nhau hay không.
-     *
-     * Hai khung:
-     * 08:00 - 10:00
-     * 09:00 - 11:00
-     *
-     * => Bị trùng.
-     *
-     * Hai khung:
-     * 08:00 - 10:00
-     * 10:00 - 12:00
-     *
-     * => Không bị trùng.
-     */
+    // Kiểm tra hai khung giờ có bị trùng nhau không
     public boolean isOverlapping(TimeSlot other) {
 
         if (other == null) {
             return false;
         }
 
-        if (!this.isValid() || !other.isValid()) {
+        if (date == null || other.date == null) {
             return false;
         }
 
-        // Khác ngày thì không trùng.
-        if (!this.date.equals(other.date)) {
+        // Khác ngày thì không trùng
+        if (!date.equals(other.date)) {
             return false;
         }
 
-        return this.startTime.isBefore(other.endTime)
-                && this.endTime.isAfter(other.startTime);
-    }
-
-    /**
-     * Tính thời lượng theo phút.
-     */
-    public long getDurationMinutes() {
-
-        if (!isValid()) {
-            return 0;
+        if (startTime == null || endTime == null
+                || other.startTime == null || other.endTime == null) {
+            return false;
         }
 
-        return Duration.between(startTime, endTime).toMinutes();
+        return startTime.isBefore(other.endTime)
+                && endTime.isAfter(other.startTime);
     }
 
-    /**
-     * Tính thời lượng theo giờ.
-     */
-    public long getDurationHours() {
+    // Tính số giờ sử dụng
+    public long getHours() {
 
         if (!isValid()) {
             return 0;
@@ -143,4 +107,4 @@ public class TimeSlot {
                 ", endTime=" + endTime +
                 '}';
     }
-}
+}////

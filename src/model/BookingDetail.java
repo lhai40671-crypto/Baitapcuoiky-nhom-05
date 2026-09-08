@@ -1,8 +1,5 @@
 package model;
 
-/**
- * Lớp BookingDetail chứa thông tin chi tiết của một lịch đặt phòng.
- */
 public class BookingDetail {
 
     private Booking booking;
@@ -10,15 +7,11 @@ public class BookingDetail {
     private double totalFee;
     private String note;
 
-    /**
-     * Constructor mặc định.
-     */
+    // Constructor mặc định
     public BookingDetail() {
     }
 
-    /**
-     * Constructor đầy đủ.
-     */
+    // Constructor đầy đủ
     public BookingDetail(Booking booking,
                          int participantCount,
                          double totalFee,
@@ -30,32 +23,34 @@ public class BookingDetail {
         this.note = note;
     }
 
+    // Getter
     public Booking getBooking() {
         return booking;
-    }
-
-    public void setBooking(Booking booking) {
-        this.booking = booking;
     }
 
     public int getParticipantCount() {
         return participantCount;
     }
 
-    public void setParticipantCount(int participantCount) {
-        this.participantCount = participantCount;
-    }
-
     public double getTotalFee() {
         return totalFee;
     }
 
-    public void setTotalFee(double totalFee) {
-        this.totalFee = totalFee;
-    }
-
     public String getNote() {
         return note;
+    }
+
+    // Setter
+    public void setBooking(Booking booking) {
+        this.booking = booking;
+    }
+
+    public void setParticipantCount(int participantCount) {
+        this.participantCount = participantCount;
+    }
+
+    public void setTotalFee(double totalFee) {
+        this.totalFee = totalFee;
     }
 
     public void setNote(String note) {
@@ -71,4 +66,4 @@ public class BookingDetail {
                 ", note='" + note + '\'' +
                 '}';
     }
-}
+}//
