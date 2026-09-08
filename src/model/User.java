@@ -1,16 +1,24 @@
 package model;
 
+/**
+ * Lớp User đại diện cho người dùng chung trong hệ thống.
+ */
 public class User {
+
     private String userId;
     private String name;
     private String phone;
     private String email;
 
-    // Constructor mặc định
+    /**
+     * Constructor mặc định.
+     */
     public User() {
     }
 
-    // Constructor đầy đủ
+    /**
+     * Constructor đầy đủ thông tin.
+     */
     public User(String userId, String name, String phone, String email) {
         this.userId = userId;
         this.name = name;
@@ -18,34 +26,32 @@ public class User {
         this.email = email;
     }
 
-    // Getter
     public String getUserId() {
         return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
     public String getName() {
         return name;
     }
 
-    public String getPhone() {
-        return phone;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    // Setter
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
-
     public void setName(String name) {
         this.name = name;
     }
 
+    public String getPhone() {
+        return phone;
+    }
+
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public String getEmail() {
+        return email;
     }
 
     public void setEmail(String email) {
@@ -61,4 +67,4 @@ public class User {
                 ", email='" + email + '\'' +
                 '}';
     }
-}//
+}
