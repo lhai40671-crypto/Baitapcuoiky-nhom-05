@@ -37,7 +37,6 @@ public class StudentRepository {
                     continue;
                 }
 
-                // studentId|name|phone|className|email
                 Student student = new Student(
                         data[0],
                         data[1],

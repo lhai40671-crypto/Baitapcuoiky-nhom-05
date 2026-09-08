@@ -24,7 +24,6 @@ public class BookingRepository {
         this.roomRepository = roomRepository;
     }
 
-    // Đọc toàn bộ danh sách đặt phòng từ file
     public List<Booking> getAll() {
 
         List<Booking> bookings = new ArrayList<>();
@@ -47,7 +46,6 @@ public class BookingRepository {
 
                 String[] data = line.split("\\|");
 
-                // bookingId|studentId|roomId|date|startTime|endTime|participantCount|status
                 if (data.length != 😎 {
                     continue;
                 }
@@ -66,7 +64,6 @@ public class BookingRepository {
         return bookings;
     }
 
-    // Dựng lại object Booking từ dòng dữ liệu text
     private Booking buildBooking(String[] data) {
 
         try {
@@ -139,7 +136,6 @@ public class BookingRepository {
         return result;
     }
 
-    // Ghi thêm 1 booking mới vào cuối file
     public void save(Booking booking) {
 
         try (BufferedWriter writer =
@@ -153,7 +149,6 @@ public class BookingRepository {
         }
     }
 
-    // Ghi lại toàn bộ danh sách (dùng khi update/cancel)
     public void saveAll(List<Booking> bookings) {
 
         try (BufferedWriter writer =

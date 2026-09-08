@@ -1,6 +1,4 @@
-
-
-        package repository;
+package repository;
 
 import model.NormalRoom;
 import model.ProjectorRoom;
@@ -15,7 +13,6 @@ public class RoomRepository {
 
     private static final String FILE_NAME = "data/rooms.txt";
 
-    // Đọc tất cả phòng
     public List<Room> getAll() {
 
         List<Room> rooms = new ArrayList<>();
@@ -58,14 +55,12 @@ public class RoomRepository {
             }
 
         } catch (IOException | NumberFormatException e) {
-
             System.out.println("Loi doc file phong: " + e.getMessage());
         }
 
         return rooms;
     }
 
-    // Tạo đúng loại phòng dựa theo chuỗi roomType đọc từ file
     private Room createRoom(String roomType,
                             String roomId,
                             String roomName,
@@ -90,7 +85,6 @@ public class RoomRepository {
         }
     }
 
-    // Suy ra chuỗi loại phòng từ kiểu class thực tế (vì Room không có field roomType)
     private String resolveRoomType(Room room) {
 
         if (room instanceof NormalRoom) {
@@ -108,7 +102,6 @@ public class RoomRepository {
         return "unknown";
     }
 
-    // Tìm phòng theo mã
     public Room findById(String roomId) {
 
         for (Room room : getAll()) {
@@ -120,7 +113,6 @@ public class RoomRepository {
         return null;
     }
 
-    // Tìm phòng theo loại
     public List<Room> findByType(String roomType) {
 
         List<Room> result = new ArrayList<>();
@@ -134,7 +126,6 @@ public class RoomRepository {
         return result;
     }
 
-    // Thêm phòng
     public void save(Room room) {
 
         try (BufferedWriter writer =
@@ -152,12 +143,10 @@ public class RoomRepository {
             writer.newLine();
 
         } catch (IOException e) {
-
             System.out.println("Loi ghi file phong: " + e.getMessage());
         }
     }
 
-    // Ghi lại toàn bộ danh sách phòng (dùng khi xóa/cập nhật)
     public void saveAll(List<Room> rooms) {
 
         try (BufferedWriter writer =
@@ -182,7 +171,6 @@ public class RoomRepository {
         }
     }
 
-    // Xóa phòng theo mã
     public boolean remove(String roomId) {
 
         List<Room> rooms = getAll();
