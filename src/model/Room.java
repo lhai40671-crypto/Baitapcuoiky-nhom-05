@@ -1,5 +1,13 @@
 package model;
 
+/**
+ * Lớp trừu tượng Room đại diện cho phòng học nhóm.
+ *
+ * Các loại phòng cụ thể:
+ * - NormalRoom
+ * - ProjectorRoom
+ * - SeminarRoom
+ */
 public abstract class Room {
 
     private String roomId;
@@ -8,11 +16,15 @@ public abstract class Room {
     private int capacity;
     private String status;
 
-    // Constructor mặc định
+    /**
+     * Constructor mặc định.
+     */
     public Room() {
     }
 
-    // Constructor đầy đủ
+    /**
+     * Constructor đầy đủ thông tin phòng.
+     */
     public Room(String roomId,
                 String roomName,
                 int floor,
@@ -26,55 +38,67 @@ public abstract class Room {
         this.status = status;
     }
 
-    // Getter
     public String getRoomId() {
         return roomId;
+    }
+
+    public void setRoomId(String roomId) {
+        this.roomId = roomId;
     }
 
     public String getRoomName() {
         return roomName;
     }
 
-    public int getFloor() {
-        return floor;
-    }
-
-    public int getCapacity() {
-        return capacity;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    // Setter
-    public void setRoomId(String roomId) {
-        this.roomId = roomId;
-    }
-
     public void setRoomName(String roomName) {
         this.roomName = roomName;
+    }
+
+    public int getFloor() {
+        return floor;
     }
 
     public void setFloor(int floor) {
         this.floor = floor;
     }
 
+    public int getCapacity() {
+        return capacity;
+    }
+
     public void setCapacity(int capacity) {
         this.capacity = capacity;
+    }
+
+    public String getStatus() {
+        return status;
     }
 
     public void setStatus(String status) {
         this.status = status;
     }
 
-    // Kiểm tra phòng có đang hoạt động hay không
-    public boolean isAvailable() {
-        return status != null
-                && status.equalsIgnoreCase("Đang hoạt động");
+    /**
+     * Kiểm tra phòng có đang hoạt động hay không.
+     *
+     * Việc không cho đặt phòng bảo trì
+     * sẽ được xử lý ở BookingValidator/Service.
+     */
+    public boolean isActive() {
+
+        if (status == null) {
+            return false;
+        }
+
+        return status.equalsIgnoreCase("Đang hoạt động")
+                || status.equalsIgnoreCase("Active");
     }
 
-    // Mỗi loại phòng có cách tính phí khác nhau
+    /**
+     * Phương thức trừu tượng tính phí phòng.
+     *
+     * Các lớp con sẽ override phương thức này.
+     */
     public abstract double calculateFee(int hours);
 
     @Override
@@ -87,4 +111,4 @@ public abstract class Room {
                 ", status='" + status + '\'' +
                 '}';
     }
-}//
+}

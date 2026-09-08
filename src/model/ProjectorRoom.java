@@ -1,16 +1,22 @@
 package model;
 
+/**
+ * Phòng học nhóm có máy chiếu.
+ */
 public class ProjectorRoom extends Room {
 
-    // Phí phòng máy chiếu: 20.000đ/giờ
     private static final double FEE_PER_HOUR = 20000;
 
-    // Constructor mặc định
+    /**
+     * Constructor mặc định.
+     */
     public ProjectorRoom() {
         super();
     }
 
-    // Constructor đầy đủ
+    /**
+     * Constructor đầy đủ thông tin.
+     */
     public ProjectorRoom(String roomId,
                          String roomName,
                          int floor,
@@ -20,7 +26,9 @@ public class ProjectorRoom extends Room {
         super(roomId, roomName, floor, capacity, status);
     }
 
-    // Tính phí thuê phòng
+    /**
+     * Tính phí sử dụng phòng máy chiếu.
+     */
     @Override
     public double calculateFee(int hours) {
 
@@ -41,4 +49,4 @@ public class ProjectorRoom extends Room {
                 ", status='" + getStatus() + '\'' +
                 '}';
     }
-}//
+}

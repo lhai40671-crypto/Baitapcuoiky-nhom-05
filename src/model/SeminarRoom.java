@@ -1,16 +1,22 @@
 package model;
 
+/**
+ * Phòng họp seminar.
+ */
 public class SeminarRoom extends Room {
 
-    // Phí phòng seminar: 50.000đ/giờ
     private static final double FEE_PER_HOUR = 50000;
 
-    // Constructor mặc định
+    /**
+     * Constructor mặc định.
+     */
     public SeminarRoom() {
         super();
     }
 
-    // Constructor đầy đủ
+    /**
+     * Constructor đầy đủ thông tin.
+     */
     public SeminarRoom(String roomId,
                        String roomName,
                        int floor,
@@ -20,7 +26,9 @@ public class SeminarRoom extends Room {
         super(roomId, roomName, floor, capacity, status);
     }
 
-    // Tính phí thuê phòng
+    /**
+     * Tính phí sử dụng phòng seminar.
+     */
     @Override
     public double calculateFee(int hours) {
 
@@ -41,4 +49,4 @@ public class SeminarRoom extends Room {
                 ", status='" + getStatus() + '\'' +
                 '}';
     }
-}//
+}
