@@ -1,6 +1,4 @@
-StudentRepository
-
-        package repository;
+package repository;
 
 import model.Student;
 

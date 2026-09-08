@@ -1,6 +1,4 @@
-BookingRepository
-
-        package repository;
+package repository;
 
 import model.Booking;
 import model.Room;
