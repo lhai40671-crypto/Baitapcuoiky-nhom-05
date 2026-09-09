@@ -15,6 +15,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.HashMap;
@@ -22,6 +24,8 @@ import java.util.List;
 import java.util.Map;
 
 public class BookingHttpServer {
+
+    private static final String WEB_INDEX_PATH = "web/index.html";
 
     private final BookingService bookingService;
     private final RoomService roomService;
@@ -37,11 +41,11 @@ public class BookingHttpServer {
         this.studentRepository = studentRepository;
     }
 
-    // Khởi động server ở port chỉ định
     public void start(int port) throws IOException {
 
         server = HttpServer.create(new InetSocketAddress(port), 0);
 
+        server.createContext("/", this::handleIndex);
         server.createContext("/rooms", this::handleRooms);
         server.createContext("/students", this::handleStudents);
         server.createContext("/bookings", this::handleBookings);
@@ -51,6 +55,7 @@ public class BookingHttpServer {
         server.start();
 
         System.out.println("BookingHttpServer dang chay tai http://localhost:" + port);
+        System.out.println("Mo trinh duyet vao http://localhost:" + port + "/ de dung giao dien web");
     }
 
     public void stop() {
@@ -59,7 +64,38 @@ public class BookingHttpServer {
         }
     }
 
-    // GET /rooms -> danh sách phòng
+    // GET / -> phuc vu trang web/index.html
+    private void handleIndex(HttpExchange exchange) throws IOException {
+
+        if (!"/".equals(exchange.getRequestURI().getPath())) {
+            sendJson(exchange, 404, errorJson("Khong tim thay duong dan nay"));
+            return;
+        }
+
+        if (!"GET".equalsIgnoreCase(exchange.getRequestMethod())) {
+            sendJson(exchange, 405, errorJson("Chi ho tro GET"));
+            return;
+        }
+
+        Path indexPath = Path.of(WEB_INDEX_PATH);
+
+        if (!Files.exists(indexPath)) {
+            sendJson(exchange, 500, errorJson(
+                    "Khong tim thay file " + WEB_INDEX_PATH
+                            + " - tao thu muc web/ o goc project va dat index.html vao do"));
+            return;
+        }
+
+        byte[] html = Files.readAllBytes(indexPath);
+
+        exchange.getResponseHeaders().set("Content-Type", "text/html; charset=UTF-8");
+        exchange.sendResponseHeaders(200, html.length);
+
+        try (OutputStream os = exchange.getResponseBody()) {
+            os.write(html);
+        }
+    }
+
     private void handleRooms(HttpExchange exchange) throws IOException {
 
         if (!"GET".equalsIgnoreCase(exchange.getRequestMethod())) {
@@ -93,7 +129,6 @@ public class BookingHttpServer {
         sendJson(exchange, 200, json.toString());
     }
 
-    // GET /students -> danh sách sinh viên
     private void handleStudents(HttpExchange exchange) throws IOException {
 
         if (!"GET".equalsIgnoreCase(exchange.getRequestMethod())) {
@@ -127,8 +162,6 @@ public class BookingHttpServer {
         sendJson(exchange, 200, json.toString());
     }
 
-    // GET /bookings?studentId=... -> lịch đặt của sinh viên
-    // POST /bookings -> tạo lịch đặt mới (form-urlencoded)
     private void handleBookings(HttpExchange exchange) throws IOException {
 
         String method = exchange.getRequestMethod();
@@ -181,7 +214,6 @@ public class BookingHttpServer {
         }
     }
 
-    // POST /bookings/cancel -> hủy lịch đặt (form-urlencoded: bookingId, studentId)
     private void handleCancelBooking(HttpExchange exchange) throws IOException {
 
         if (!"POST".equalsIgnoreCase(exchange.getRequestMethod())) {
@@ -205,8 +237,6 @@ public class BookingHttpServer {
             sendJson(exchange, 400, errorJson("Du lieu khong hop le: " + e.getMessage()));
         }
     }
-
-    // ==== Helper: JSON ====
 
     private String bookingsToJson(List<Booking> bookings) {
 
@@ -252,8 +282,6 @@ public class BookingHttpServer {
 
         return value.replace("\\", "\\\\").replace("\"", "\\\"");
     }
-
-    // ==== Helper: HTTP ====
 
     private void sendJson(HttpExchange exchange, int statusCode, String json) throws IOException {
 

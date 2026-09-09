@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>He thong dat phong hoc nhom</title>
+<style>
+  /* CSS toi gian - chi de bang bieu de nhin, khong lam gi phuc tap */
+  body { font-family: Arial, sans-serif; margin: 24px; color: #000; background: #fff; }
+  h1 { font-size: 22px; }
+  h2 { font-size: 18px; margin-top: 32px; border-bottom: 1px solid #000; padding-bottom: 4px; }
+  table { border-collapse: collapse; width: 100%; margin-top: 8px; }
+  th, td { border: 1px solid #000; padding: 6px 8px; text-align: left; font-size: 14px; }
+  th { background: #eee; }
+  label { display: block; margin-top: 10px; font-size: 14px; }
+  input { padding: 4px; margin-top: 2px; width: 220px; }
+  button { margin-top: 14px; padding: 6px 16px; cursor: pointer; }
+  .msg { margin-top: 10px; font-size: 14px; }
+  .ok { color: green; }
+  .err { color: red; }
+</style>
+</head>
+<body>
+
+<h1>He thong dat phong hoc nhom - Nhom 05</h1>
+
+<!-- ===== Danh sach phong ===== -->
+<h2>Danh sach phong</h2>
+<table id="roomTable">
+  <thead>
+    <tr><th>Ma phong</th><th>Ten phong</th><th>Tang</th><th>Suc chua</th><th>Trang thai</th></tr>
+  </thead>
+  <tbody></tbody>
+</table>
+
+<!-- ===== Danh sach sinh vien ===== -->
+<h2>Danh sach sinh vien</h2>
+<table id="studentTable">
+  <thead>
+    <tr><th>Ma SV</th><th>Ho ten</th><th>Lop</th><th>SDT</th><th>Email</th></tr>
+  </thead>
+  <tbody></tbody>
+</table>
+
+<!-- ===== Form dat phong ===== -->
+<h2>Dat phong</h2>
+<label>Ma sinh vien
+  <input id="b-studentId" placeholder="VD: SV001">
+</label>
+<label>Ma phong
+  <input id="b-roomId" placeholder="VD: P001">
+</label>
+<label>Ngay (yyyy-MM-dd)
+  <input id="b-date" placeholder="VD: 2026-09-10">
+</label>
+<label>Gio bat dau (HH:mm)
+  <input id="b-start" placeholder="VD: 08:00">
+</label>
+<label>Gio ket thuc (HH:mm)
+  <input id="b-end" placeholder="VD: 10:00">
+</label>
+<label>So nguoi tham gia
+  <input id="b-people" type="number" placeholder="VD: 5">
+</label>
+<button onclick="bookRoom()">Dat phong</button>
+<div id="bookMsg" class="msg"></div>
+
+<!-- ===== Form huy phong ===== -->
+<h2>Huy dat phong</h2>
+<label>Ma dat phong
+  <input id="c-bookingId" placeholder="VD: BK001">
+</label>
+<label>Ma sinh vien
+  <input id="c-studentId" placeholder="VD: SV001">
+</label>
+<button onclick="cancelBooking()">Huy phong</button>
+<div id="cancelMsg" class="msg"></div>
+
+<script>
+  // Vi HTML nay duoc chinh Java server phuc vu tai cung dia chi localhost:8080
+  // nen goi thang duong dan tuong doi, khong bi loi CORS.
+
+  // ---- Tai danh sach phong ----
+  async function loadRooms() {
+    const res = await fetch("/rooms");
+    const rooms = await res.json();
+    const tbody = document.querySelector("#roomTable tbody");
+    tbody.innerHTML = "";
+    rooms.forEach(r => {
+      tbody.innerHTML += `<tr>
+        <td>${r.roomId}</td><td>${r.roomName}</td><td>${r.floor}</td>
+        <td>${r.capacity}</td><td>${r.status}</td>
+      </tr>`;
+    });
+  }
+
+  // ---- Tai danh sach sinh vien ----
+  async function loadStudents() {
+    const res = await fetch("/students");
+    const students = await res.json();
+    const tbody = document.querySelector("#studentTable tbody");
+    tbody.innerHTML = "";
+    students.forEach(s => {
+      tbody.innerHTML += `<tr>
+        <td>${s.studentId}</td><td>${s.name}</td><td>${s.className}</td>
+        <td>${s.phone}</td><td>${s.email}</td>
+      </tr>`;
+    });
+  }
+
+  // ---- Dat phong ----
+  async function bookRoom() {
+    const studentId = document.getElementById("b-studentId").value;
+    const roomId = document.getElementById("b-roomId").value;
+    const date = document.getElementById("b-date").value;
+    const startTime = document.getElementById("b-start").value;
+    const endTime = document.getElementById("b-end").value;
+    const participantCount = document.getElementById("b-people").value;
+
+    const body = new URLSearchParams({ studentId, roomId, date, startTime, endTime, participantCount });
+
+    const res = await fetch("/bookings", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: body
+    });
+
+    const data = await res.json();
+    const msg = document.getElementById("bookMsg");
+
+    if (res.ok) {
+      msg.className = "msg ok";
+      msg.textContent = "Dat phong thanh cong! Ma dat phong: " + data.bookingId;
+    } else {
+      msg.className = "msg err";
+      msg.textContent = "Loi: " + data.error;
+    }
+  }
+
+  // ---- Huy phong ----
+  async function cancelBooking() {
+    const bookingId = document.getElementById("c-bookingId").value;
+    const studentId = document.getElementById("c-studentId").value;
+
+    const body = new URLSearchParams({ bookingId, studentId });
+
+    const res = await fetch("/bookings/cancel", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: body
+    });
+
+    const data = await res.json();
+    const msg = document.getElementById("cancelMsg");
+
+    if (res.ok) {
+      msg.className = "msg ok";
+      msg.textContent = "Huy phong thanh cong!";
+    } else {
+      msg.className = "msg err";
+      msg.textContent = "Loi: " + data.error;
+    }
+  }
+
+  // Tai du lieu ngay khi mo trang
+  loadRooms();
+  loadStudents();
+</script>
+
+</body>
+</html>

@@ -1,5 +1,5 @@
-P001| Phong Thuong 1  |1|10|  normal |Đang hoạt động
-P002| Phong Thuong 2  |1|15|  normal |Đang hoạt động
+P001|Phong Thuong 1|1|10|normal|Đang hoạt động
+P002|Phong Thuong 2|1|15|normal|Đang hoạt động
 P003|Phong May Chieu 1|2|20|projector|Đang hoạt động
 P004|Phong May Chieu 2|2|20|projector|Đang bảo trì
-P005| Phong Seminar A |3|50| seminar |Đang hoạt động
+P005|Phong Seminar A|3|50|seminar|Đang hoạt động
